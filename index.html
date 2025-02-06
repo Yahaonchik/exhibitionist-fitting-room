@@ -53,8 +53,10 @@
             camera.lookAt(0, 0, 0);
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio); // Это улучшит качество для экранов с высокой плотностью пикселей
+            document.body.appendChild(renderer.domElement);
+
 
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
