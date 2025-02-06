@@ -36,54 +36,90 @@
         // Создаем сцену, камеру и рендерер
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 5);
+        camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
-        // Создание освещения
-        const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.0); // Яркий мягкий свет
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 2.0); // Направленное освещение
-        directionalLight.position.set(5, 5, 5); // Расположение источника света
-        scene.add(directionalLight);
-
-        // Контролы для камеры
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.25;
         controls.rotateSpeed = 0.5;
+        controls.enableZoom = true;
 
-        // Загрузка модели
+        // Свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 3, 100);
+        pointLight.position.set(0, 2, 0);
+        scene.add(pointLight);
+
+        // Миксеры для анимации
+        let mixers = [];
+
+        // Функция масштабирования моделей
+        function scaleModel(model, scaleFactor) {
+            model.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+
+        // Загрузка и добавление моделей
         const loader = new THREE.GLTFLoader();
-        loader.load('models/untitled.glb', function(glb) {
-            const model = glb.scene;
-            scene.add(model);
-            model.scale.set(1, 1, 1); // Применяем масштаб
-            model.position.set(0, 0, 0); // Устанавливаем начальную позицию
 
-            // Проверим, если материалы мешающего типа, делаем их простыми
-            model.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = new THREE.MeshStandardMaterial({
-                        color: 0xffffff,   // Цвет материала
-                        emissive: 0x111111, // Эмиссия
-                        metalness: 0.8,     // Металличность
-                        roughness: 0.2      // Шероховатость
-                    });
-                }
+        const models = ['untitled.glb', 'untitled2.glb', 'untitled3.glb'];
+        const positions = [
+            { x: 0.2, y: 0, z: 0, scale: 0.35 },
+            { x: -3, y: 0, z: 0, scale: 0.9 },
+            { x: 3, y: 0, z: 0, scale: 1 }
+        ];
+
+        models.forEach((modelFile, index) => {
+            loader.load(`models/${modelFile}`, function(glb) {
+                const model = glb.scene;
+                const mixer = new THREE.AnimationMixer(model);
+
+                // Проверим, что модель загрузилась
+                console.log(`Модель загружена: ${modelFile}`);
+
+                // Применяем настройки материалов для бликов
+                model.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material.metalness = 0.6;
+                        child.material.roughness = 0.2;
+                        child.material.envMap = scene.background;
+                    }
+                });
+
+                // Добавляем анимации
+                glb.animations.forEach((clip) => {
+                    let action = mixer.clipAction(clip);
+                    action.play();
+                    action.timeScale = 0.3;
+                });
+
+                // Устанавливаем позицию и масштаб модели
+                model.position.set(positions[index].x, positions[index].y, positions[index].z);
+                scaleModel(model, positions[index].scale);
+                scene.add(model);
+
+                // Добавляем миксер в массив для обновления анимаций
+                mixers.push(mixer);
+            }, undefined, function(error) {
+                console.error(`Ошибка при загрузке ${modelFile}: `, error);
             });
-
-        }, undefined, function(error) {
-            console.error("Ошибка загрузки модели:", error);
         });
 
         // Функция анимации
         function animate() {
             requestAnimationFrame(animate);
+            mixers.forEach(mixer => mixer.update(0.016));
             controls.update();
             renderer.render(scene, camera);
         }
