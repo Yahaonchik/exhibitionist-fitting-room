@@ -8,7 +8,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background: url('hauhi.jpg') no-repeat center center fixed;
+            background: url('./images/hauhi.jpg') no-repeat center center fixed;
             background-size: cover;
         }
         canvas {
@@ -31,80 +31,93 @@
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
-
+    
     <script>
+        // Создаем сцену, камеру и рендерер
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 10, 20); // Камера сверху, подальше, чтобы объекты не перекрывались
+        
+        camera.position.set(0, 5, 5);
         camera.lookAt(0, 0, 0);
-
+        
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
 
-        // Основное освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // немного увеличена интенсивность
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.rotateSpeed = 0.5;
+        controls.enableZoom = true;
+
+        // Добавление освещения
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-        directionalLight.position.set(5, 10, 5);
-        directionalLight.castShadow = true;
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+        directionalLight.position.set(5, 10, 7.5);
         scene.add(directionalLight);
 
-        const pointLight = new THREE.PointLight(0xffc107, 8); // Яркий желтый точечный свет
-        pointLight.position.set(0, 5, 0);
-        scene.add(pointLight);
+        let mixer1, mixer2, mixer3;
+        let model1, model2, model3;
 
-        let mixers = [];
+        function scaleModel(model, scaleFactor) {
+            model.scale.set(scaleFactor, scaleFactor, scaleFactor);
+        }
+
         const loader = new THREE.GLTFLoader();
 
-        const models = ['untitled.glb', 'untitled2.glb', 'untitled3.glb'];
-        const positions = [
-            { x: -3, y: 0, z: 0, scale: 0.9 },
-            { x: 0, y: 0, z: 0, scale: 1.2 },
-            { x: 3, y: 0, z: 0, scale: 0.9 }
-        ];
-
-        models.forEach((modelFile, index) => {
-            loader.load(`models/${modelFile}`, function(glb) {
-                const model = glb.scene;
-                const mixer = new THREE.AnimationMixer(model);
-
-                model.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material.metalness = 1.3; // Metalness для ярких бликов
-                        child.material.roughness = 3; // Меньше шероховатости для гладкой поверхности
-                        child.material.envMapIntensity = 1;
-                        child.material.side = THREE.DoubleSide;
-                        child.material.needsUpdate = true;
-                    }
-                });
-
-                glb.animations.forEach((clip) => {
-                    let action = mixer.clipAction(clip);
-                    action.play();
-                    action.timeScale = 0.5;
-                });
-
-                model.position.set(positions[index].x, positions[index].y, positions[index].z);
-                model.scale.set(positions[index].scale, positions[index].scale, positions[index].scale);
-                scene.add(model);
-                mixers.push(mixer);
-            }, undefined, function(error) {
-                console.error(`Ошибка при загрузке ${modelFile}: `, error);
+        loader.load('./models/untitled.glb', function(glb) {
+            model1 = glb.scene;
+            mixer1 = new THREE.AnimationMixer(model1);
+            glb.animations.forEach((clip) => {
+                let action = mixer1.clipAction(clip);
+                action.play();
+                action.timeScale = 0.3;
             });
+            model1.position.set(0.2, 0, 0);
+            scaleModel(model1, 0.35);
+            scene.add(model1);
+        });
+
+        loader.load('./models/untitled2.glb', function(glb) {
+            model2 = glb.scene;
+            mixer2 = new THREE.AnimationMixer(model2);
+            glb.animations.forEach((clip) => {
+                let action = mixer2.clipAction(clip);
+                action.timeScale = 0.3;
+                const duration = clip.duration;
+                const startTime = 0.25 * duration;
+                action.reset();
+                action.time = startTime;
+                action.play();
+            });
+            model2.position.set(-3, 0, 0);
+            scaleModel(model2, 0.9);
+            scene.add(model2);
+        });
+
+        loader.load('./models/untitled3.glb', function(glb) {
+            model3 = glb.scene;
+            mixer3 = new THREE.AnimationMixer(model3);
+            glb.animations.forEach((clip) => {
+                let action = mixer3.clipAction(clip);
+                action.play();
+                action.timeScale = 0.3;
+            });
+            model3.position.set(3, 0, 0);
+            scaleModel(model3, 1);
+            scene.add(model3);
         });
 
         function animate() {
             requestAnimationFrame(animate);
-            mixers.forEach(mixer => mixer.update(0.016));
+            if (mixer1) mixer1.update(0.016);
+            if (mixer2) mixer2.update(0.016);
+            if (mixer3) mixer3.update(0.016);
+            controls.update();
             renderer.render(scene, camera);
         }
-
         animate();
     </script>
 </body>
