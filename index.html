@@ -67,7 +67,7 @@
         const loader = new THREE.GLTFLoader();
         
         // Загрузка первой модели
-        loader.load('/models/untitled.glb', function(glb) {
+        loader.load('./models/untitled.glb', function(glb) {
             model1 = glb.scene;
             mixer1 = new THREE.AnimationMixer(model1);
             glb.animations.forEach((clip) => {
@@ -81,7 +81,7 @@
         });
         
         // Загрузка второй модели
-        loader.load('/models/untitled2.glb', function(glb) {
+        loader.load('./models/untitled2.glb', function(glb) {
             model2 = glb.scene;
             mixer2 = new THREE.AnimationMixer(model2);
             glb.animations.forEach((clip) => {
@@ -99,7 +99,7 @@
         });
         
         // Загрузка третьей модели
-        loader.load('/models/untitled3.glb', function(glb) {
+        loader.load('./models/untitled3.glb', function(glb) {
             model3 = glb.scene;
             mixer3 = new THREE.AnimationMixer(model3);
             glb.animations.forEach((clip) => {
