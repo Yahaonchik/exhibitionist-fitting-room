@@ -58,6 +58,10 @@
         directionalLight.position.set(5, 10, 7.5);
         scene.add(directionalLight);
 
+        const pointLight = new THREE.PointLight(0xffccaa, 1.5, 50);
+        pointLight.position.set(2, 5, 3);
+        scene.add(pointLight);
+
         let mixer1, mixer2, mixer3;
         let model1, model2, model3;
 
