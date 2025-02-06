@@ -33,15 +33,15 @@
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
 
     <script>
-        // Создаем сцену, камеру и рендерер
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 0);
-        camera.lookAt(0, 0, 0);
-
+        camera.position.set(0, 2, 5);
+        
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.body.appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -50,29 +50,26 @@
         controls.rotateSpeed = 0.5;
         controls.enableZoom = true;
 
-        // Свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 5);
+        // Улучшенное освещение
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
-        directionalLight.position.set(0, 0, 0);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        directionalLight.position.set(5, 10, 5);
+        directionalLight.castShadow = true;
         scene.add(directionalLight);
 
-        const pointLight = new THREE.PointLight(0xddfcad, 20);
-        pointLight.position.set(0, 0, 0);
+        const pointLight = new THREE.PointLight(0xddfcad, 2, 50);
+        pointLight.position.set(2, 5, 2);
         scene.add(pointLight);
 
-        // Миксеры для анимации
         let mixers = [];
 
-        // Функция масштабирования моделей
         function scaleModel(model, scaleFactor) {
             model.scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
 
-        // Загрузка и добавление моделей
         const loader = new THREE.GLTFLoader();
-
         const models = ['untitled.glb', 'untitled2.glb', 'untitled3.glb'];
         const positions = [
             { x: 0.2, y: 0, z: 0, scale: 0.35 },
@@ -84,39 +81,32 @@
             loader.load(`models/${modelFile}`, function(glb) {
                 const model = glb.scene;
                 const mixer = new THREE.AnimationMixer(model);
-
-                // Проверим, что модель загрузилась
-                console.log(`Модель загружена: ${modelFile}`);
-
-                // Применяем настройки материалов для бликов
-                model.traverse(function(child) {
+                
+                model.traverse((child) => {
                     if (child.isMesh) {
-                        child.material.metalness = 0.6;
-                        child.material.roughness = 0.2;
-                        child.material.envMap = scene.background;
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        child.material.metalness = 0.8;
+                        child.material.roughness = 0.4;
                     }
                 });
-
-                // Добавляем анимации
+                
                 glb.animations.forEach((clip) => {
                     let action = mixer.clipAction(clip);
                     action.play();
                     action.timeScale = 0.3;
                 });
 
-                // Устанавливаем позицию и масштаб модели
                 model.position.set(positions[index].x, positions[index].y, positions[index].z);
                 scaleModel(model, positions[index].scale);
                 scene.add(model);
 
-                // Добавляем миксер в массив для обновления анимаций
                 mixers.push(mixer);
             }, undefined, function(error) {
                 console.error(`Ошибка при загрузке ${modelFile}: `, error);
             });
         });
 
-        // Функция анимации
         function animate() {
             requestAnimationFrame(animate);
             mixers.forEach(mixer => mixer.update(0.016));
