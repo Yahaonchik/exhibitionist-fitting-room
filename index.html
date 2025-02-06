@@ -71,7 +71,7 @@
             model.scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
 
-        loader.load('/untitled.glb', function(glb) {
+        loader.load('/models/untitled.glb', function(glb) {
             model1 = glb.scene;
             mixer1 = new THREE.AnimationMixer(model1);
             glb.animations.forEach((clip) => {
@@ -82,9 +82,12 @@
             model1.position.set(0.2, 0, 0);
             scaleModel(model1, 0.35);
             scene.add(model1);
+            console.log("Model 1 added:", model1);
+        }, undefined, function(error) {
+            console.error("Error loading model 1:", error);
         });
 
-        loader.load('/untitled2.glb', function(glb) {
+        loader.load('/models/untitled2.glb', function(glb) {
             model2 = glb.scene;
             mixer2 = new THREE.AnimationMixer(model2);
             glb.animations.forEach((clip) => {
@@ -99,9 +102,12 @@
             model2.position.set(-3, 0, 0);
             scaleModel(model2, 0.9);
             scene.add(model2);
+            console.log("Model 2 added:", model2);
+        }, undefined, function(error) {
+            console.error("Error loading model 2:", error);
         });
 
-        loader.load('/untitled3.glb', function(glb) {
+        loader.load('/models/untitled3.glb', function(glb) {
             model3 = glb.scene;
             mixer3 = new THREE.AnimationMixer(model3);
             glb.animations.forEach((clip) => {
@@ -112,6 +118,9 @@
             model3.position.set(3, 0, 0);
             scaleModel(model3, 1);
             scene.add(model3);
+            console.log("Model 3 added:", model3);
+        }, undefined, function(error) {
+            console.error("Error loading model 3:", error);
         });
         
         // Функция анимации
@@ -127,4 +136,3 @@
     </script>
 </body>
 </html>
-
