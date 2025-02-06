@@ -28,9 +28,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/BloomPass.js"></script>
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
@@ -39,120 +36,56 @@
         // Создаем сцену, камеру и рендерер
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 0);
+        camera.position.set(0, 5, 5);
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
         document.body.appendChild(renderer.domElement);
 
-        // Улучшения качества рендеринга
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1;
-        renderer.gammaFactor = 2.2;
-        renderer.outputEncoding = THREE.sRGBEncoding; // Для корректного отображения цветов
+        // Создание освещения
+        const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.0); // Яркий мягкий свет
+        scene.add(ambientLight);
 
-        // Создание постобработки (Bloom эффект)
-        const effectComposer = new THREE.EffectComposer(renderer);
-        const renderPass = new THREE.RenderPass(scene, camera);
-        effectComposer.addPass(renderPass);
+        const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 2.0); // Направленное освещение
+        directionalLight.position.set(5, 5, 5); // Расположение источника света
+        scene.add(directionalLight);
 
-        const bloomPass = new THREE.BloomPass(1.5); // Увеличенная яркость для bloom эффекта
-        effectComposer.addPass(bloomPass);
-
-        // Управление камерой
+        // Контролы для камеры
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.25;
         controls.rotateSpeed = 0.5;
-        controls.enableZoom = false;
 
-        // Свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.8); // Яркий мягкий свет
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 3); // Яркое направленное освещение
-        directionalLight.position.set(5, 5, 5); // Позиция для яркого освещения
-        scene.add(directionalLight);
-
-        const pointLight = new THREE.PointLight(0xffffff, 3, 100); // Более интенсивный точечный свет
-        pointLight.position.set(0, 2, 0);
-        scene.add(pointLight);
-
-        const spotLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 6, 0.25, 1); // Добавим более яркий сфокусированный свет
-        spotLight.position.set(0, 2, 3);
-        scene.add(spotLight);
-
-        // Миксеры для анимации
-        let mixers = [];
-
-        // Функция масштабирования моделей
-        function scaleModel(model, scaleFactor) {
-            model.scale.set(scaleFactor, scaleFactor, scaleFactor);
-        }
-
-        // Загрузка и добавление моделей
+        // Загрузка модели
         const loader = new THREE.GLTFLoader();
+        loader.load('models/untitled.glb', function(glb) {
+            const model = glb.scene;
+            scene.add(model);
+            model.scale.set(1, 1, 1); // Применяем масштаб
+            model.position.set(0, 0, 0); // Устанавливаем начальную позицию
 
-        const models = ['untitled.glb', 'untitled2.glb', 'untitled3.glb'];
-        const positions = [
-            { x: 0.2, y: 0, z: 0, scale: 0.35 },
-            { x: -3, y: 0, z: 0, scale: 0.9 },
-            { x: 3, y: 0, z: 0, scale: 1 }
-        ];
-
-        models.forEach((modelFile, index) => {
-            loader.load(`models/${modelFile}`, function(glb) {
-                const model = glb.scene;
-                const mixer = new THREE.AnimationMixer(model);
-
-                // Применяем настройки материалов для бликов и свечения
-                model.traverse(function(child) {
-                    if (child.isMesh) {
-                        child.material.metalness = 0.6;  // Металлические материалы для бликов
-                        child.material.roughness = 0.2;  // Уменьшаем шероховатость
-                        child.material.emissive = new THREE.Color(0xFFFFFF); // Эмиссия для свечения
-                        child.material.emissiveIntensity = 0.5; // Свечение
-
-                        // Если есть текстуры, делаем их правильным образом
-                        if (child.material.map) {
-                            child.material.map.encoding = THREE.sRGBEncoding;
-                        }
-
-                        // Добавляем отражения
-                        child.material.envMap = scene.background;
-                    }
-                });
-
-                // Добавляем анимации
-                glb.animations.forEach((clip) => {
-                    let action = mixer.clipAction(clip);
-                    action.play();
-                    action.timeScale = 0.3;
-                });
-
-                // Устанавливаем позицию и масштаб модели
-                model.position.set(positions[index].x, positions[index].y, positions[index].z);
-                scaleModel(model, positions[index].scale);
-                scene.add(model);
-
-                // Добавляем миксер в массив для обновления анимаций
-                mixers.push(mixer);
-            }, undefined, function(error) {
-                console.error(`Ошибка при загрузке ${modelFile}: `, error);
+            // Проверим, если материалы мешающего типа, делаем их простыми
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: 0xffffff,   // Цвет материала
+                        emissive: 0x111111, // Эмиссия
+                        metalness: 0.8,     // Металличность
+                        roughness: 0.2      // Шероховатость
+                    });
+                }
             });
+
+        }, undefined, function(error) {
+            console.error("Ошибка загрузки модели:", error);
         });
 
         // Функция анимации
         function animate() {
             requestAnimationFrame(animate);
-
-            // Обновление миксеров
-            mixers.forEach(mixer => mixer.update(0.016));
-
             controls.update();
-            effectComposer.render(); // Используем EffectComposer для рендеринга с Bloom эффектом
+            renderer.render(scene, camera);
         }
 
         animate();
