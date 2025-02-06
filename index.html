@@ -64,13 +64,6 @@
         directionalLight.position.set(5, 5, 5); // Направляем свет
         scene.add(directionalLight);
 
-        // Свет с фокусом (для создания бликов)
-        const spotLight = new THREE.SpotLight(0xffffff, 1.5); 
-        spotLight.position.set(0, 5, 0); // Позиция источника света
-        spotLight.target.position.set(0, 0, 0); // Направление света
-        spotLight.angle = Math.PI / 6; // Угол освещения
-        scene.add(spotLight);
-
         // Миксеры для анимации
         let mixers = [];
 
@@ -104,18 +97,6 @@
                 // Устанавливаем позицию и масштаб модели
                 model.position.set(positions[index].x, positions[index].y, positions[index].z);
                 scaleModel(model, positions[index].scale);
-                
-                // Применение материала для отражений и бликов
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = new THREE.MeshStandardMaterial({
-                            metalness: 0.7,
-                            roughness: 0.2,
-                            color: 0xffffff,
-                            emissive: 0x111111 // Устанавливаем слабое свечение для моделирования бликов
-                        });
-                    }
-                });
 
                 scene.add(model);
 
@@ -141,3 +122,4 @@
     </script>
 </body>
 </html>
+
