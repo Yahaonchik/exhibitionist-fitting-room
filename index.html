@@ -36,101 +36,81 @@
         // Создаем сцену, камеру и рендерер
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        camera.position.set(0, 5, 10);
+        camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
-        
+
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true; // Включаем тени
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Тип теней для мягкости
         document.body.appendChild(renderer.domElement);
-        
+
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.25;
+        controls.dampingFactor = 0;
         controls.rotateSpeed = 0.5;
-        controls.enableZoom = true;
-        
-        // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Мягкий свет
+        controls.enableZoom = false;
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
         scene.add(ambientLight);
-        
-        const pointLight = new THREE.PointLight(0xffffff, 1, 50); // Точка освещения
-        pointLight.position.set(5, 5, 5);
-        pointLight.castShadow = true; // Включаем тени для источника света
+
+        const pointLight = new THREE.PointLight(0xddfcad, 10);
+        pointLight.position.set(0, 0, 0);
         scene.add(pointLight);
-        
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(10, 10, 10);
-        directionalLight.castShadow = true; // Включаем тени
-        scene.add(directionalLight);
 
-        let mixer1, mixer2, mixer3;
-        let model1, model2, model3;
+        // Миксеры для анимации
+        let mixers = [];
 
+        // Функция масштабирования моделей
         function scaleModel(model, scaleFactor) {
             model.scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
 
-        // Загружаем модели
+        // Загрузка и добавление моделей
         const loader = new THREE.GLTFLoader();
 
-        loader.load('/models/untitled.glb', function(glb) {
-            model1 = glb.scene;
-            mixer1 = new THREE.AnimationMixer(model1);
-            glb.animations.forEach((clip) => {
-                let action = mixer1.clipAction(clip);
-                action.play();
-                action.timeScale = 1; // Более нормальная скорость анимации
+        const models = ['untitled.glb', 'untitled2.glb', 'untitled3.glb'];
+        const positions = [
+            { x: 0.2, y: 0, z: 0, scale: 0.35 },
+            { x: -3, y: 0, z: 0, scale: 0.9 },
+            { x: 3, y: 0, z: 0, scale: 1 }
+        ];
+
+        models.forEach((modelFile, index) => {
+            loader.load(`models/${modelFile}`, function(glb) {
+                const model = glb.scene;
+                const mixer = new THREE.AnimationMixer(model);
+
+                // Добавляем анимации
+                glb.animations.forEach((clip) => {
+                    let action = mixer.clipAction(clip);
+                    action.play();
+                    action.timeScale = 0.3;
+                });
+
+                // Устанавливаем позицию и масштаб модели
+                model.position.set(positions[index].x, positions[index].y, positions[index].z);
+                scaleModel(model, positions[index].scale);
+                scene.add(model);
+
+                // Добавляем миксер в массив для обновления анимаций
+                mixers.push(mixer);
+            }, undefined, function(error) {
+                console.error(`Ошибка при загрузке ${modelFile}: `, error);
             });
-            model1.position.set(0.2, 0, 0);
-            scaleModel(model1, 0.35);
-            model1.castShadow = true; // Включаем тени для модели
-            model1.receiveShadow = true; // Модель будет получать тени
-            scene.add(model1);
         });
 
-        loader.load('/models/untitled2.glb', function(glb) {
-            model2 = glb.scene;
-            mixer2 = new THREE.AnimationMixer(model2);
-            glb.animations.forEach((clip) => {
-                let action = mixer2.clipAction(clip);
-                action.play();
-                action.timeScale = 1;
-            });
-            model2.position.set(-3, 0, 0);
-            scaleModel(model2, 0.9);
-            model2.castShadow = true;
-            model2.receiveShadow = true;
-            scene.add(model2);
-        });
-
-        loader.load('/models/untitled3.glb', function(glb) {
-            model3 = glb.scene;
-            mixer3 = new THREE.AnimationMixer(model3);
-            glb.animations.forEach((clip) => {
-                let action = mixer3.clipAction(clip);
-                action.play();
-                action.timeScale = 1;
-            });
-            model3.position.set(3, 0, 0);
-            scaleModel(model3, 1);
-            model3.castShadow = true;
-            model3.receiveShadow = true;
-            scene.add(model3);
-        });
-
-        // Анимация
+        // Функция анимации
         function animate() {
             requestAnimationFrame(animate);
-            if (mixer1) mixer1.update(0.016);
-            if (mixer2) mixer2.update(0.016);
-            if (mixer3) mixer3.update(0.016);
+
+            // Обновление миксеров
+            mixers.forEach(mixer => mixer.update(0.016));
+
             controls.update();
             renderer.render(scene, camera);
         }
+
         animate();
     </script>
 </body>
 </html>
+
