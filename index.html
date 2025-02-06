@@ -55,14 +55,24 @@
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
 
-        // Добавляем ambient light
+        // Мягкий свет
         const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Мягкий свет, освещает все объекты
         scene.add(ambientLight);
 
-        // Направленный свет (блики и тени)
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 2); // Направленный свет с более сильным эффектом
+        // Направленный свет (сильный свет для создания теней)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
         directionalLight.position.set(5, 5, 5); // Направляем свет
         scene.add(directionalLight);
+
+        // Точечный свет (для ярких бликов на объектах)
+        const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+        pointLight.position.set(0, 2, 0); // Размещаем точку света выше
+        scene.add(pointLight);
+
+        // SpotLight для более сфокусированных бликов
+        const spotLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 6, 0.25, 1);
+        spotLight.position.set(0, 2, 3); // Размещаем спот на модели
+        scene.add(spotLight);
 
         // Миксеры для анимации
         let mixers = [];
@@ -122,4 +132,3 @@
     </script>
 </body>
 </html>
-
