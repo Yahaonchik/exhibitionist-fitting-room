@@ -46,10 +46,14 @@
         const ambientLight = new THREE.AmbientLight(0xffffff, 2);
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
         directionalLight.position.set(0, 5, 5);
         directionalLight.castShadow = true;
         scene.add(directionalLight);
+        
+        const pointLight = new THREE.PointLight(0xddfcad, 2);
+        pointLight.position.set(0, 5, 5);
+        scene.add(pointLight);
 
         const loader = new THREE.GLTFLoader();
         const mixers = [];
