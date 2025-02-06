@@ -37,7 +37,7 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         
-        camera.position.set(0, 5, 10); // Позиция камеры для лучшего обзора
+        camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
         
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -48,30 +48,25 @@
         controls.enableDamping = true;
         controls.dampingFactor = 0;
         controls.rotateSpeed = 0.5;
-        controls.enableZoom = true;
+        controls.enableZoom = false;
         
-        // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Мягкий свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
         scene.add(ambientLight);
         
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Направленный свет
-        directionalLight.position.set(10, 10, 10); // Позиция света
-        scene.add(directionalLight);
-
-        const pointLight = new THREE.PointLight(0xffffff, 1, 50); // Точечный свет
-        pointLight.position.set(0, 0, 0); // Позиция света
+        const pointLight = new THREE.PointLight(0xddfcad, 10);
+        pointLight.position.set(0, 0, 0);
         scene.add(pointLight);
-
-        // Загрузка моделей
-        const loader = new THREE.GLTFLoader();
+        
         let mixer1, mixer2, mixer3;
         let model1, model2, model3;
         
         function scaleModel(model, scaleFactor) {
             model.scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
-
-        loader.load('/models/untitled.glb', function(glb) {
+        
+        const loader = new THREE.GLTFLoader();
+        
+        loader.load('/untitled.glb', function(glb) {
             model1 = glb.scene;
             mixer1 = new THREE.AnimationMixer(model1);
             glb.animations.forEach((clip) => {
@@ -82,12 +77,9 @@
             model1.position.set(0.2, 0, 0);
             scaleModel(model1, 0.35);
             scene.add(model1);
-            console.log("Model 1 added:", model1);
-        }, undefined, function(error) {
-            console.error("Error loading model 1:", error);
         });
-
-        loader.load('/models/untitled2.glb', function(glb) {
+        
+        loader.load('/untitled2.glb', function(glb) {
             model2 = glb.scene;
             mixer2 = new THREE.AnimationMixer(model2);
             glb.animations.forEach((clip) => {
@@ -102,12 +94,9 @@
             model2.position.set(-3, 0, 0);
             scaleModel(model2, 0.9);
             scene.add(model2);
-            console.log("Model 2 added:", model2);
-        }, undefined, function(error) {
-            console.error("Error loading model 2:", error);
         });
-
-        loader.load('/models/untitled3.glb', function(glb) {
+        
+        loader.load('/untitled3.glb', function(glb) {
             model3 = glb.scene;
             mixer3 = new THREE.AnimationMixer(model3);
             glb.animations.forEach((clip) => {
@@ -118,12 +107,8 @@
             model3.position.set(3, 0, 0);
             scaleModel(model3, 1);
             scene.add(model3);
-            console.log("Model 3 added:", model3);
-        }, undefined, function(error) {
-            console.error("Error loading model 3:", error);
         });
         
-        // Функция анимации
         function animate() {
             requestAnimationFrame(animate);
             if (mixer1) mixer1.update(0.016);
