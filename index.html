@@ -40,7 +40,15 @@
         camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
         
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        const renderer = new THREE.WebGLRenderer({
+            alpha: true, // Прозрачный фон
+            antialias: true, // Сглаживание
+            powerPreference: "high-performance", // Высокопроизводительный режим
+        });
+        renderer.setPixelRatio(window.devicePixelRatio || 1); // Использовать native DPI экрана
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+            
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
         
