@@ -53,6 +53,15 @@
         renderer.gammaFactor = 2.2;
         renderer.outputEncoding = THREE.sRGBEncoding; // Для корректного отображения цветов
 
+        // Создание постобработки (Bloom эффект)
+        const effectComposer = new THREE.EffectComposer(renderer);
+        const renderPass = new THREE.RenderPass(scene, camera);
+        effectComposer.addPass(renderPass);
+
+        const bloomPass = new THREE.BloomPass(1.5); // Увеличенная яркость для bloom эффекта
+        effectComposer.addPass(bloomPass);
+
+        // Управление камерой
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.25;
@@ -60,28 +69,20 @@
         controls.enableZoom = false;
 
         // Свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); // Мягкий свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.8); // Яркий мягкий свет
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 3); // Направленный свет
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3); // Яркое направленное освещение
         directionalLight.position.set(5, 5, 5); // Позиция для яркого освещения
         scene.add(directionalLight);
 
-        const pointLight = new THREE.PointLight(0xffffff, 3, 100); // Точечный свет
+        const pointLight = new THREE.PointLight(0xffffff, 3, 100); // Более интенсивный точечный свет
         pointLight.position.set(0, 2, 0);
         scene.add(pointLight);
 
-        const spotLight = new THREE.SpotLight(0xffffff, 1, 10, Math.PI / 6, 0.25, 1); // Сфокусированный свет
+        const spotLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 6, 0.25, 1); // Добавим более яркий сфокусированный свет
         spotLight.position.set(0, 2, 3);
         scene.add(spotLight);
-
-        // Постобработка
-        const effectComposer = new THREE.EffectComposer(renderer);
-        const renderPass = new THREE.RenderPass(scene, camera);
-        effectComposer.addPass(renderPass);
-
-        const bloomPass = new THREE.BloomPass(1.5); // Увеличенная яркость для bloom эффекта
-        effectComposer.addPass(bloomPass);
 
         // Миксеры для анимации
         let mixers = [];
@@ -106,10 +107,10 @@
                 const model = glb.scene;
                 const mixer = new THREE.AnimationMixer(model);
 
-                // Применяем настройки материалов для бликов и текстур
+                // Применяем настройки материалов для бликов и свечения
                 model.traverse(function(child) {
                     if (child.isMesh) {
-                        child.material.metalness = 0.5;  // Металлические материалы для бликов
+                        child.material.metalness = 0.6;  // Металлические материалы для бликов
                         child.material.roughness = 0.2;  // Уменьшаем шероховатость
                         child.material.emissive = new THREE.Color(0xFFFFFF); // Эмиссия для свечения
                         child.material.emissiveIntensity = 0.5; // Свечение
