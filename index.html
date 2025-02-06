@@ -51,8 +51,8 @@
         directionalLight.castShadow = true;
         scene.add(directionalLight);
         
-        const pointLight = new THREE.PointLight(0xddfcad, 2);
-        pointLight.position.set(0, 5, 5);
+        const pointLight = new THREE.PointLight(0xddfcad, 1);
+        pointLight.position.set(0, 3, 0);
         scene.add(pointLight);
 
         const loader = new THREE.GLTFLoader();
