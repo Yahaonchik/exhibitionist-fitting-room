@@ -55,11 +55,11 @@
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 5);
         scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0xddfcad, 10);
-        pointLight.position.set(0, 0, 0);
+        const pointLight = new THREE.PointLight(0xddfcad, 50);
+        pointLight.position.set(0, 0, 2);
         scene.add(pointLight);
 
         // Миксеры для анимации
