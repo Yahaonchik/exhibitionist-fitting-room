@@ -50,13 +50,13 @@
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
 
-        // Создание основного освещения (Ambient Light)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Более мягкое освещение
+        // Основное мягкое освещение (Ambient Light)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Освещает все объекты
         scene.add(ambientLight);
 
-        // Функция для добавления точечных источников света для каждой модели
+        // Функция для добавления точечного источника света для каждой модели
         function addPointLightToModel(model, position) {
-            const pointLight = new THREE.PointLight(0xddfcad, 5, 50); // Мягкое освещение
+            const pointLight = new THREE.PointLight(0xddfcad, 1, 20); // Понизил яркость, чтобы не было слишком ярко
             pointLight.position.set(position.x, position.y, position.z);
             scene.add(pointLight);
         }
