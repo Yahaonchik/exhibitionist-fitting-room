@@ -28,6 +28,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
@@ -41,13 +42,13 @@
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // Устанавливаем плотность пикселей для улучшения качества
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
         // Улучшаем качество рендеринга
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1;
-        renderer.gammaFactor = 2.2; // Улучшаем гамму для более ярких цветов
+        renderer.gammaFactor = 2.2;
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
@@ -56,22 +57,22 @@
         controls.enableZoom = false;
 
         // Мягкий свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Мягкий свет, освещает все объекты
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1); 
         scene.add(ambientLight);
 
-        // Направленный свет (сильный свет для создания теней)
+        // Направленный свет
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        directionalLight.position.set(5, 5, 5); // Направляем свет
+        directionalLight.position.set(5, 5, 5);
         scene.add(directionalLight);
 
-        // Точечный свет (для ярких бликов на объектах)
+        // Точечный свет
         const pointLight = new THREE.PointLight(0xffffff, 2, 100);
-        pointLight.position.set(0, 2, 0); // Размещаем точку света выше
+        pointLight.position.set(0, 2, 0);
         scene.add(pointLight);
 
         // SpotLight для более сфокусированных бликов
         const spotLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 6, 0.25, 1);
-        spotLight.position.set(0, 2, 3); // Размещаем спот на модели
+        spotLight.position.set(0, 2, 3);
         scene.add(spotLight);
 
         // Миксеры для анимации
@@ -97,6 +98,15 @@
                 const model = glb.scene;
                 const mixer = new THREE.AnimationMixer(model);
 
+                // Применяем настройки материалов для бликов
+                model.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.material.metalness = 0.5; // Добавляем металлический блеск
+                        child.material.roughness = 0.2; // Уменьшаем шероховатость для ярких отражений
+                        child.material.envMap = scene.background; // Добавляем карту окружения для отражений
+                    }
+                });
+
                 // Добавляем анимации
                 glb.animations.forEach((clip) => {
                     let action = mixer.clipAction(clip);
@@ -117,6 +127,17 @@
             });
         });
 
+        // Постобработка для создания эффекта свечения (bloom)
+        const bloomPass = new THREE.UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            1.5, // Степень свечения
+            0.4, // Меньше — менее яркие блики
+            0.85  // Контраст
+        );
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(new THREE.RenderPass(scene, camera));
+        composer.addPass(bloomPass);
+
         // Функция анимации
         function animate() {
             requestAnimationFrame(animate);
@@ -125,7 +146,7 @@
             mixers.forEach(mixer => mixer.update(0.016));
 
             controls.update();
-            renderer.render(scene, camera);
+            composer.render(); // Используем постобработку для эффекта свечения
         }
 
         animate();
