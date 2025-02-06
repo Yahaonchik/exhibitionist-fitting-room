@@ -51,15 +51,15 @@
         controls.enableZoom = true;
 
         // Свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+        const ambientLight = new THREE.AmbientLight(0xffffff, );
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-        directionalLight.position.set(5, 5, 5);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+        directionalLight.position.set(0, 0, 0);
         scene.add(directionalLight);
 
-        const pointLight = new THREE.PointLight(0xffffff, 3, 100);
-        pointLight.position.set(0, 2, 0);
+        const pointLight = new THREE.PointLight(0xddfcad, 50);
+        pointLight.position.set(0, 0, 0);
         scene.add(pointLight);
 
         // Миксеры для анимации
