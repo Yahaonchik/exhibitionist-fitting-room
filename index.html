@@ -88,6 +88,12 @@
             scene.add(model1);
         });
         
+        const material = new THREE.MeshStandardMaterial({
+            color: 0xffffff, // Простой белый цвет
+            roughness: 0.5,  // Настройка roughness без карты
+            metalness: 0.5,  // Настройка metalness без карты
+        });
+        
         // Загрузка второй модели
         loader.load('./models/untitled2.glb', function(glb) {
             model2 = glb.scene;
