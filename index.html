@@ -28,7 +28,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
@@ -42,10 +41,10 @@
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
         document.body.appendChild(renderer.domElement);
 
-        // Улучшаем качество рендеринга
+        // Улучшения качества рендеринга
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1;
         renderer.gammaFactor = 2.2;
@@ -56,22 +55,19 @@
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
 
-        // Мягкий свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); // увеличено освещение
+        // Свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); // Мягкий свет
         scene.add(ambientLight);
 
-        // Направленный свет
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-        directionalLight.position.set(5, 5, 5);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2); // Направленный свет
+        directionalLight.position.set(5, 5, 5); // Позиция для яркого освещения
         scene.add(directionalLight);
 
-        // Точечный свет
-        const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+        const pointLight = new THREE.PointLight(0xffffff, 2, 100); // Точечный свет
         pointLight.position.set(0, 2, 0);
         scene.add(pointLight);
 
-        // SpotLight для более сфокусированных бликов
-        const spotLight = new THREE.SpotLight(0xffffff, 1, 10, Math.PI / 6, 0.25, 1);
+        const spotLight = new THREE.SpotLight(0xffffff, 1, 10, Math.PI / 6, 0.25, 1); // Сфокусированный свет
         spotLight.position.set(0, 2, 3);
         scene.add(spotLight);
 
@@ -101,9 +97,9 @@
                 // Применяем настройки материалов для бликов
                 model.traverse(function(child) {
                     if (child.isMesh) {
-                        child.material.metalness = 0.5; // Добавляем металлический блеск
-                        child.material.roughness = 0.2; // Уменьшаем шероховатость для ярких отражений
-                        child.material.envMap = scene.background; // Добавляем карту окружения для отражений
+                        child.material.metalness = 0.5; // Металлические материалы для бликов
+                        child.material.roughness = 0.2; // Уменьшаем шероховатость
+                        child.material.envMap = scene.background; // Отражения
                     }
                 });
 
@@ -127,17 +123,6 @@
             });
         });
 
-        // Постобработка для создания эффекта свечения (bloom)
-        const bloomPass = new THREE.UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
-            1.5, // Степень свечения
-            0.4, // Меньше — менее яркие блики
-            0.85  // Контраст
-        );
-        const composer = new THREE.EffectComposer(renderer);
-        composer.addPass(new THREE.RenderPass(scene, camera));
-        composer.addPass(bloomPass);
-
         // Функция анимации
         function animate() {
             requestAnimationFrame(animate);
@@ -146,7 +131,7 @@
             mixers.forEach(mixer => mixer.update(0.016));
 
             controls.update();
-            composer.render(); // Используем постобработку для эффекта свечения
+            renderer.render(scene, camera); // Рендеринг без постобработки
         }
 
         animate();
