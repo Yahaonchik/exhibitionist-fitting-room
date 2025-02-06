@@ -47,7 +47,7 @@
         // Улучшаем качество рендеринга
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1;
-        renderer.gammaFactor = 2.2; // Улучшаем гамму для более ярких цветов
+        renderer.gammaFactor = 5; // Улучшаем гамму для более ярких цветов
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
