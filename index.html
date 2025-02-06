@@ -33,7 +33,7 @@
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
     
     <script>
-        // Создаем сцену, камеру и рендерер
+        // Создаем сцену, камеру и рендерер (с WebGL2)
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         
@@ -46,21 +46,23 @@
         renderer.toneMapping = THREE.ACESFilmicToneMapping;  // Улучшение цветопередачи
         renderer.outputEncoding = THREE.sRGBEncoding;  // Улучшение точности цветов
         document.body.appendChild(renderer.domElement);
-        
+
+        // Добавляем OrbitControls для управления сценой
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0;
+        controls.dampingFactor = 0.25;
         controls.rotateSpeed = 0.5;
         controls.enableZoom = true;
         
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        // Добавляем свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);  // Яркое освещение
         scene.add(ambientLight);
         
-        // Добавляем точечный источник света для более яркого освещения моделей
         const pointLight = new THREE.PointLight(0xddfcad, 2);
         pointLight.position.set(0, 5, 0);
         scene.add(pointLight);
         
+        // Переменные для анимаций и моделей
         let mixer1, mixer2, mixer3;
         let model1, model2, model3;
         
@@ -113,6 +115,7 @@
             scene.add(model3);
         });
         
+        // Функция анимации
         function animate() {
             requestAnimationFrame(animate);
             if (mixer1) mixer1.update(0.016);
