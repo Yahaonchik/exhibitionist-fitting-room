@@ -46,7 +46,7 @@
 
         // Улучшения качества рендеринга
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1;
+        renderer.toneMappingExposure = 2;  // Повышаем экспозицию для более ярких сцен
         renderer.gammaFactor = 2.2;
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -56,18 +56,18 @@
         controls.enableZoom = false;
 
         // Свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.8); // Яркий мягкий свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2); // Яркий мягкий свет
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 3); // Яркое направленное освещение
-        directionalLight.position.set(5, 5, 5); // Позиция для яркого освещения
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 5); // Яркое солнце
+        directionalLight.position.set(5, 10, 5); // Позиция для яркого освещения сверху
         scene.add(directionalLight);
 
-        const pointLight = new THREE.PointLight(0xffffff, 3, 100); // Более интенсивный точечный свет
-        pointLight.position.set(0, 2, 0);
+        const pointLight = new THREE.PointLight(0xffffff, 5, 100); // Очень яркий точечный свет
+        pointLight.position.set(0, 5, 0);
         scene.add(pointLight);
 
-        const spotLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 6, 0.25, 1); // Добавим более яркий сфокусированный свет
+        const spotLight = new THREE.SpotLight(0xffffff, 4, 10, Math.PI / 6, 0.25, 1); // Очень яркий сфокусированный свет
         spotLight.position.set(0, 2, 3);
         scene.add(spotLight);
 
@@ -94,12 +94,13 @@
                 const model = glb.scene;
                 const mixer = new THREE.AnimationMixer(model);
 
-                // Применяем настройки материалов для бликов
+                // Применяем настройки материалов для ярких бликов
                 model.traverse(function(child) {
                     if (child.isMesh) {
-                        child.material.metalness = 0.6; // Металлические материалы для бликов
-                        child.material.roughness = 0.2; // Уменьшаем шероховатость
-                        child.material.envMap = scene.background; // Отражения
+                        child.material.metalness = 1.0;  // Устанавливаем металл для сильных бликов
+                        child.material.roughness = 0.1;  // Повышаем гладкость для четких бликов
+                        child.material.envMap = scene.background;  // Отражения
+                        child.material.emissive = new THREE.Color(0xffffff); // Добавляем излучение для эффекта свечения
                     }
                 });
 
