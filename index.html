@@ -41,13 +41,13 @@
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // Устанавливаем плотность пикселей для улучшения качества
+        renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
         document.body.appendChild(renderer.domElement);
 
-        // Улучшаем качество рендеринга
+        // Улучшения качества рендеринга
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1;
-        renderer.gammaFactor = 2.2; // Улучшаем гамму для более ярких цветов
+        renderer.gammaFactor = 2.2;
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
@@ -55,13 +55,21 @@
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
 
-        // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); // Меньше для более мягкого освещения
+        // Свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.8); // Яркий мягкий свет
         scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0xddfcad, 3); // Яркое освещение для бликования
-        pointLight.position.set(5, 5, 5); // Позиция света, чтобы он освещал плакаты
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3); // Яркое направленное освещение
+        directionalLight.position.set(5, 5, 5); // Позиция для яркого освещения
+        scene.add(directionalLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 3, 100); // Более интенсивный точечный свет
+        pointLight.position.set(0, 2, 0);
         scene.add(pointLight);
+
+        const spotLight = new THREE.SpotLight(0xffffff, 2, 10, Math.PI / 6, 0.25, 1); // Добавим более яркий сфокусированный свет
+        spotLight.position.set(0, 2, 3);
+        scene.add(spotLight);
 
         // Миксеры для анимации
         let mixers = [];
@@ -86,16 +94,12 @@
                 const model = glb.scene;
                 const mixer = new THREE.AnimationMixer(model);
 
-                // Применение материалов с блеском (металличность, шероховатость)
-                model.traverse((child) => {
+                // Применяем настройки материалов для бликов
+                model.traverse(function(child) {
                     if (child.isMesh) {
-                        child.material = new THREE.MeshStandardMaterial({
-                            color: 0xffffff, 
-                            metalness: 0.8,  // Настроим металличность для бликов
-                            roughness: 0.2,  // Шероховатость, чтобы поверхность была более гладкой
-                            emissive: 0x111111,  // Мягкое излучение для яркости
-                            emissiveIntensity: 0.1 // Степень излучения
-                        });
+                        child.material.metalness = 0.6; // Металлические материалы для бликов
+                        child.material.roughness = 0.2; // Уменьшаем шероховатость
+                        child.material.envMap = scene.background; // Отражения
                     }
                 });
 
@@ -109,6 +113,7 @@
                 // Устанавливаем позицию и масштаб модели
                 model.position.set(positions[index].x, positions[index].y, positions[index].z);
                 scaleModel(model, positions[index].scale);
+
                 scene.add(model);
 
                 // Добавляем миксер в массив для обновления анимаций
@@ -126,7 +131,7 @@
             mixers.forEach(mixer => mixer.update(0.016));
 
             controls.update();
-            renderer.render(scene, camera);
+            renderer.render(scene, camera); // Рендеринг без постобработки
         }
 
         animate();
