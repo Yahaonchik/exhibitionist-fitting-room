@@ -40,22 +40,25 @@
         camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
         
+        // Создаем рендерер с улучшениями качества
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // Высокое качество на устройствах с высокой плотностью пикселей
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;  // Улучшение цветопередачи
+        renderer.outputEncoding = THREE.sRGBEncoding;  // Улучшение точности цветов
         document.body.appendChild(renderer.domElement);
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.25; // Добавлена плавность
+        controls.dampingFactor = 0;
         controls.rotateSpeed = 0.5;
-        controls.enableZoom = true; // Включен зум для удобства
+        controls.enableZoom = true;
         
-        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
         scene.add(ambientLight);
         
-        const pointLight = new THREE.PointLight(0xddfcad, 10);
-        pointLight.position.set(0, 0, 0);
+        // Добавляем точечный источник света для более яркого освещения моделей
+        const pointLight = new THREE.PointLight(0xddfcad, 2);
+        pointLight.position.set(0, 5, 0);
         scene.add(pointLight);
         
         let mixer1, mixer2, mixer3;
@@ -64,29 +67,51 @@
         function scaleModel(model, scaleFactor) {
             model.scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
-
+        
         const loader = new THREE.GLTFLoader();
         
-        // Функция для загрузки моделей
-        function loadModel(url, position, scaleFactor, mixer) {
-            loader.load(url, function(glb) {
-                const model = glb.scene;
-                mixer = new THREE.AnimationMixer(model);
-                glb.animations.forEach((clip) => {
-                    let action = mixer.clipAction(clip);
-                    action.play();
-                    action.timeScale = 0.3; // Замедление анимации, можно настроить
-                });
-                model.position.set(...position);
-                scaleModel(model, scaleFactor);
-                scene.add(model);
+        loader.load('/models/untitled.glb', function(glb) {
+            model1 = glb.scene;
+            mixer1 = new THREE.AnimationMixer(model1);
+            glb.animations.forEach((clip) => {
+                let action = mixer1.clipAction(clip);
+                action.play();
+                action.timeScale = 0.3;
             });
-        }
+            model1.position.set(0.2, 0, 0);
+            scaleModel(model1, 0.35);
+            scene.add(model1);
+        });
         
-        // Загружаем 3D модели
-        loadModel('/models/untitled.glb', [0.2, 0, 0], 0.35, mixer1);
-        loadModel('/models/untitled2.glb', [-3, 0, 0], 0.9, mixer2);
-        loadModel('/models/untitled3.glb', [3, 0, 0], 1, mixer3);
+        loader.load('/models/untitled2.glb', function(glb) {
+            model2 = glb.scene;
+            mixer2 = new THREE.AnimationMixer(model2);
+            glb.animations.forEach((clip) => {
+                let action = mixer2.clipAction(clip);
+                action.timeScale = 0.3;
+                const duration = clip.duration;
+                const startTime = 0.25 * duration;
+                action.reset();
+                action.time = startTime;
+                action.play();
+            });
+            model2.position.set(-3, 0, 0);
+            scaleModel(model2, 0.9);
+            scene.add(model2);
+        });
+        
+        loader.load('/models/untitled3.glb', function(glb) {
+            model3 = glb.scene;
+            mixer3 = new THREE.AnimationMixer(model3);
+            glb.animations.forEach((clip) => {
+                let action = mixer3.clipAction(clip);
+                action.play();
+                action.timeScale = 0.3;
+            });
+            model3.position.set(3, 0, 0);
+            scaleModel(model3, 1);
+            scene.add(model3);
+        });
         
         function animate() {
             requestAnimationFrame(animate);
