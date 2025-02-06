@@ -98,9 +98,14 @@
                 model.traverse(function(child) {
                     if (child.isMesh) {
                         child.material.metalness = 1.0;  // Устанавливаем металл для сильных бликов
-                        child.material.roughness = 0.1;  // Повышаем гладкость для четких бликов
+                        child.material.roughness = 0.2;  // Повышаем гладкость для четких бликов
                         child.material.envMap = scene.background;  // Отражения
                         child.material.emissive = new THREE.Color(0xffffff); // Добавляем излучение для эффекта свечения
+
+                        // Проверяем наличие текстур и добавляем их
+                        if (child.material.map) {
+                            child.material.map.encoding = THREE.sRGBEncoding; // Подключаем корректное отображение цветов текстуры
+                        }
                     }
                 });
 
