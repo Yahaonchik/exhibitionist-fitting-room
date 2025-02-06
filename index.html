@@ -28,6 +28,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/BloomPass.js"></script>
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
@@ -46,30 +49,39 @@
 
         // Улучшения качества рендеринга
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 2;  // Повышаем экспозицию для более ярких сцен
+        renderer.toneMappingExposure = 1;
         renderer.gammaFactor = 2.2;
+        renderer.outputEncoding = THREE.sRGBEncoding; // Для корректного отображения цветов
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0;
+        controls.dampingFactor = 0.25;
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
 
         // Свет
-        const ambientLight = new THREE.AmbientLight(0xffffff, 2); // Яркий мягкий свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); // Мягкий свет
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 5); // Яркое солнце
-        directionalLight.position.set(5, 10, 5); // Позиция для яркого освещения сверху
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3); // Направленный свет
+        directionalLight.position.set(5, 5, 5); // Позиция для яркого освещения
         scene.add(directionalLight);
 
-        const pointLight = new THREE.PointLight(0xffffff, 5, 100); // Очень яркий точечный свет
-        pointLight.position.set(0, 5, 0);
+        const pointLight = new THREE.PointLight(0xffffff, 3, 100); // Точечный свет
+        pointLight.position.set(0, 2, 0);
         scene.add(pointLight);
 
-        const spotLight = new THREE.SpotLight(0xffffff, 4, 10, Math.PI / 6, 0.25, 1); // Очень яркий сфокусированный свет
+        const spotLight = new THREE.SpotLight(0xffffff, 1, 10, Math.PI / 6, 0.25, 1); // Сфокусированный свет
         spotLight.position.set(0, 2, 3);
         scene.add(spotLight);
+
+        // Постобработка
+        const effectComposer = new THREE.EffectComposer(renderer);
+        const renderPass = new THREE.RenderPass(scene, camera);
+        effectComposer.addPass(renderPass);
+
+        const bloomPass = new THREE.BloomPass(1.5); // Увеличенная яркость для bloom эффекта
+        effectComposer.addPass(bloomPass);
 
         // Миксеры для анимации
         let mixers = [];
@@ -94,18 +106,21 @@
                 const model = glb.scene;
                 const mixer = new THREE.AnimationMixer(model);
 
-                // Применяем настройки материалов для ярких бликов
+                // Применяем настройки материалов для бликов и текстур
                 model.traverse(function(child) {
                     if (child.isMesh) {
-                        child.material.metalness = 1.0;  // Устанавливаем металл для сильных бликов
-                        child.material.roughness = 0.2;  // Повышаем гладкость для четких бликов
-                        child.material.envMap = scene.background;  // Отражения
-                        child.material.emissive = new THREE.Color(0xffffff); // Добавляем излучение для эффекта свечения
+                        child.material.metalness = 0.5;  // Металлические материалы для бликов
+                        child.material.roughness = 0.2;  // Уменьшаем шероховатость
+                        child.material.emissive = new THREE.Color(0xFFFFFF); // Эмиссия для свечения
+                        child.material.emissiveIntensity = 0.5; // Свечение
 
-                        // Проверяем наличие текстур и добавляем их
+                        // Если есть текстуры, делаем их правильным образом
                         if (child.material.map) {
-                            child.material.map.encoding = THREE.sRGBEncoding; // Подключаем корректное отображение цветов текстуры
+                            child.material.map.encoding = THREE.sRGBEncoding;
                         }
+
+                        // Добавляем отражения
+                        child.material.envMap = scene.background;
                     }
                 });
 
@@ -119,7 +134,6 @@
                 // Устанавливаем позицию и масштаб модели
                 model.position.set(positions[index].x, positions[index].y, positions[index].z);
                 scaleModel(model, positions[index].scale);
-
                 scene.add(model);
 
                 // Добавляем миксер в массив для обновления анимаций
@@ -137,7 +151,7 @@
             mixers.forEach(mixer => mixer.update(0.016));
 
             controls.update();
-            renderer.render(scene, camera); // Рендеринг без постобработки
+            effectComposer.render(); // Используем EffectComposer для рендеринга с Bloom эффектом
         }
 
         animate();
