@@ -45,22 +45,22 @@
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0;
+        controls.dampingFactor = 0.25;
         controls.rotateSpeed = 0.5;
-        controls.enableZoom = false;
+        controls.enableZoom = true;
         
         // Добавление освещения
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // мягкое общее освещение
         scene.add(ambientLight);
-        
-        const pointLight = new THREE.PointLight(0xfffcfc, 1, 100); // точечное освещение
-        pointLight.position.set(0, 5, 5);
+
+        const pointLight = new THREE.PointLight(0xfffcfc, 3, 100); // точечное освещение с высокой интенсивностью
+        pointLight.position.set(0, 5, 5); // позиция света
         scene.add(pointLight);
 
-        // Добавление направленного света для лучшего освещения модели
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // направленный свет
+        // Направленный свет для создания эффектов бликов
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
         directionalLight.position.set(5, 10, 5);
-        directionalLight.target.position.set(0, 0, 0); // на что будет направлен свет
+        directionalLight.target.position.set(0, 0, 0);
         scene.add(directionalLight);
 
         let mixer1, mixer2, mixer3;
@@ -69,9 +69,10 @@
         function scaleModel(model, scaleFactor) {
             model.scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
-        
+
         const loader = new THREE.GLTFLoader();
-        
+
+        // Загружаем и добавляем модели
         loader.load('/untitled.glb', function(glb) {
             model1 = glb.scene;
             mixer1 = new THREE.AnimationMixer(model1);
@@ -82,9 +83,20 @@
             });
             model1.position.set(0.2, 0, 0);
             scaleModel(model1, 0.35);
+            // Используем MeshStandardMaterial для лучшего освещения
+            model1.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({ 
+                        roughness: 0.5, 
+                        metalness: 0.7, 
+                        emissive: 0x000000, // можно добавить светящийся эффект
+                        color: 0xffffff
+                    });
+                }
+            });
             scene.add(model1);
         });
-        
+
         loader.load('/untitled2.glb', function(glb) {
             model2 = glb.scene;
             mixer2 = new THREE.AnimationMixer(model2);
@@ -99,9 +111,20 @@
             });
             model2.position.set(-3, 0, 0);
             scaleModel(model2, 0.9);
+            // Также применяем материал для второй модели
+            model2.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        roughness: 0.5,
+                        metalness: 0.7,
+                        emissive: 0x000000,
+                        color: 0xffffff
+                    });
+                }
+            });
             scene.add(model2);
         });
-        
+
         loader.load('/untitled3.glb', function(glb) {
             model3 = glb.scene;
             mixer3 = new THREE.AnimationMixer(model3);
@@ -112,9 +135,20 @@
             });
             model3.position.set(3, 0, 0);
             scaleModel(model3, 1);
+            // Для третьей модели добавляем материал
+            model3.traverse(function(child) {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        roughness: 0.5,
+                        metalness: 0.7,
+                        emissive: 0x000000,
+                        color: 0xffffff
+                    });
+                }
+            });
             scene.add(model3);
         });
-        
+
         function animate() {
             requestAnimationFrame(animate);
             if (mixer1) mixer1.update(0.016);
