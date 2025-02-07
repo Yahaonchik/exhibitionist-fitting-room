@@ -19,37 +19,35 @@
 <canvas id="myCanvas"></canvas>
 
 <script type="module">
-    import { Tween, Easing } from 'https://unpkg.com/@tweenjs/tween.js@23.1.3/dist/tween.esm.js';
-
-    // Используем правильный импорт для Three.js
-    import { Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial, Mesh, Clock } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+    import { TWEEN } from 'https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/Tween.min.js';  // Используем правильный импорт для TWEEN
 
     let scene, camera, renderer, cube, clock;
 
     function init() {
         // Инициализация сцены
-        scene = new Scene();
-        camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        renderer = new WebGLRenderer({ canvas: document.getElementById('myCanvas') });
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('myCanvas') });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
         // Добавляем куб
-        const geometry = new BoxGeometry();
-        const material = new MeshBasicMaterial({ color: 0x00ff00 });
-        cube = new Mesh(geometry, material);
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
 
         camera.position.z = 5;
 
         // Создаем часы для анимации
-        clock = new Clock();
+        clock = new THREE.Clock();
 
         // Настроим анимацию с Tween.js
         const position = { x: 0, y: 0, z: 5 };
-        const tween = new Tween(position)
+        const tween = new TWEEN.Tween(position)
             .to({ x: 1, y: 1, z: 1 }, 2000)
-            .easing(Easing.Quadratic.InOut)
+            .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(() => {
                 cube.position.set(position.x, position.y, position.z);
             })
@@ -73,4 +71,3 @@
 
 </body>
 </html>
-
