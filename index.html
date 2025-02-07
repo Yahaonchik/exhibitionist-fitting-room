@@ -72,7 +72,7 @@
         
         const loader = new THREE.GLTFLoader();
         
-        loader.load('/untitled.glb', function(glb) {
+        loader.load('/untitled2.glb', function(glb) {
             model1 = glb.scene;
             mixer1 = new THREE.AnimationMixer(model1);
             glb.animations.forEach((clip) => {
@@ -96,7 +96,7 @@
         
         function animate() {
             requestAnimationFrame(animate);
-            if (mixer1) mixer1.update(0.016);
+            if (mixer1) mixer1.update(0.016);  // Обновляем анимацию модели
             controls.update();
             renderer.render(scene, camera);
         }
