@@ -25,18 +25,17 @@
             font-family: Arial, sans-serif;
         }
     </style>
-    <!-- Подключаем Three.js и TWEEN.js с другого CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-    <!-- Подключаем TWEEN.js через обычную ссылку на CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/tween.js@18.6.4/dist/tween.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- Подключаем Three.js и TWEEN.js с другим CDN и добавляем defer для правильной загрузки -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/tween.js@18.6.4/dist/tween.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" defer></script>
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
 
     <script>
         // Убедимся, что TWEEN доступен в глобальной области видимости
-        window.TWEEN = TWEEN || {};
+        window.TWEEN = window.TWEEN || {};
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -104,7 +103,7 @@
             requestAnimationFrame(animate);
             const delta = 0.014;
             if (mixer) mixer.update(delta);
-            TWEEN.update(); 
+            TWEEN.update();  // Обновляем TWEEN анимации
             renderer.render(scene, camera);
         }
 
@@ -112,4 +111,3 @@
     </script>
 </body>
 </html>
-
