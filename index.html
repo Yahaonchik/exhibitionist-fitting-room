@@ -61,9 +61,8 @@
     function animate() {
         requestAnimationFrame(animate);
 
-        // Обновляем тайминг для tween.js
-        const delta = clock.getDelta();
-        Tween.update();
+        // Обновляем все анимации
+        TWEEN.update();
 
         // Обновляем сцену
         renderer.render(scene, camera);
