@@ -30,6 +30,7 @@
             .easing(Easing.Quadratic.InOut) // Плавная анимация
             .onUpdate(() => {
                 // Обновление позиции элемента на экране
+                console.log(`Updating: x=${coords.x}, y=${coords.y}`); // Добавляем лог для проверки
                 box.style.transform = `translate(${coords.x}px, ${coords.y}px)`;
             })
             .start(); // Запуск анимации
