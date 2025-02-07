@@ -42,7 +42,7 @@
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.gammaFactor = 2.2;
+        renderer.gammaFactor = 4;
         renderer.gammaOutput = true;
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setClearColor(0x000000, 0);  // Установка прозрачного фона
@@ -56,6 +56,13 @@
         pointLight.position.set(-3, 5, 7);
         scene.add(pointLight);
 
+        // Создаем материал
+        const material = new THREE.MeshStandardMaterial({
+            color: 0x555555,
+            metalness: 0.5,
+            roughness: 0
+        });
+
         // Загрузка модели
         let mixer;
         const loader = new THREE.GLTFLoader();
@@ -67,6 +74,14 @@
                 const action = mixer.clipAction(clip);
                 action.play();
             });
+
+            // Применяем материал ко всем мешам модели
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = material;
+                }
+            });
+
             model.position.set(0, 0, 0);
             model.scale.setScalar(1.2);
             scene.add(model);
