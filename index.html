@@ -37,7 +37,7 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         
-        camera.position.set(0, 10, 0);  // Камера выше, чтобы была видна модель сверху
+        camera.position.set(0, 5, 0);  // Камера выше, чтобы была видна модель сверху
         camera.lookAt(0, 0, 0);
         
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
