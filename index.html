@@ -56,7 +56,8 @@
         // Загрузка модели
         let mixer;
         let currentModel;
-        const loader = new THREE.GLTFLoader();
+        let currentModelIndex = 0;  // Индекс текущей модели
+        const modelPaths = ['untitled.glb', 'untitled2.glb'];  // Пути к моделям
         
         function loadModel(path, positionY) {
             loader.load(path, function (glb) {
@@ -84,23 +85,20 @@
         }
 
         // Первоначальная загрузка первой модели
-        loadModel('untitled.glb', 0);  // Загрузка первой модели
+        loadModel(modelPaths[currentModelIndex], 0);  // Загрузка первой модели
 
         // Обработчик события прокрутки
-        let scrollDirection = 0;
         window.addEventListener('wheel', (event) => {
             if (event.deltaY > 0) {
                 // Прокрутка вниз
-                scrollDirection = 1;
+                currentModelIndex = (currentModelIndex + 1) % modelPaths.length;  // Переход к следующей модели
             } else {
                 // Прокрутка вверх
-                scrollDirection = -1;
+                currentModelIndex = (currentModelIndex - 1 + modelPaths.length) % modelPaths.length;  // Переход к предыдущей модели
             }
-            // Загрузка следующей модели при прокрутке
-            if (scrollDirection !== 0) {
-                // Прокручиваем вниз — загружаем 'untitled2.glb', прокручиваем вверх — загружаем 'untitled.glb'
-                loadModel(scrollDirection === 1 ? 'untitled2.glb' : 'untitled.glb', scrollDirection === 1 ? -10 : 10);
-            }
+            
+            // Загружаем следующую модель
+            loadModel(modelPaths[currentModelIndex], event.deltaY > 0 ? -10 : 10);  // Загружаем с анимацией перемещения
         });
 
         // Анимация и рендеринг
@@ -116,3 +114,4 @@
     </script>
 </body>
 </html>
+
