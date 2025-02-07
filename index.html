@@ -67,10 +67,15 @@
                 const model = glb.scene;
                 mixer = new THREE.AnimationMixer(model);
 
-                glb.animations.forEach((clip) => {
-                    const action = mixer.clipAction(clip);
-                    action.play();
-                });
+                // Проверяем, есть ли анимации в модели
+                if (glb.animations && glb.animations.length > 0) {
+                    glb.animations.forEach((clip) => {
+                        const action = mixer.clipAction(clip);
+                        action.play();
+                    });
+                } else {
+                    console.warn("Нет анимаций в модели!");
+                }
 
                 model.position.set(0, 0, 0);
                 model.scale.setScalar(1.2);
