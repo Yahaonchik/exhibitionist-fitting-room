@@ -79,13 +79,6 @@
         
         const loader = new THREE.GLTFLoader();
         
-        // Материал для моделей
-        const material = new THREE.MeshStandardMaterial({
-            color: 0xffffff, // Белый цвет
-            roughness: 0.5,  // Настройка roughness
-            metalness: 0.3,  // Настройка metalness
-        });
-        
         // Загрузка первой модели
         loader.load('./models/untitled.glb', function(glb) {
             model1 = glb.scene;
@@ -98,13 +91,6 @@
             model1.position.set(0.2, 0, 0);
             scaleModel(model1, 2.3);
             scene.add(model1);
-            
-            // Применяем материал к модели
-            model1.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = material;
-                }
-            });
         });
         
         // Загрузка второй модели
@@ -123,13 +109,6 @@
             model2.position.set(-3, 0, 0);
             scaleModel(model2, 0.9);
             scene.add(model2);
-            
-            // Применяем материал к модели
-            model2.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = material;
-                }
-            });
         });
         
         // Загрузка третьей модели
@@ -144,13 +123,6 @@
             model3.position.set(3, 0, 0);
             scaleModel(model3, 1);
             scene.add(model3);
-            
-            // Применяем материал к модели
-            model3.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = material;
-                }
-            });
         });
         
         function animate() {
