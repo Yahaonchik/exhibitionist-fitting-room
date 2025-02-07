@@ -27,7 +27,7 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.min.js"></script> <!-- Подключаем правильно библиотеку TWEEN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.min.js"></script> <!-- Подключаем TWEEN -->
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
@@ -52,6 +52,9 @@
         const pointLight = new THREE.PointLight(0xf8c8a8, 5);
         pointLight.position.set(-3, 5, 7);
         scene.add(pointLight);
+
+        // Создаем экземпляр GLTFLoader
+        const loader = new THREE.GLTFLoader();
 
         // Загрузка модели
         let mixer;
