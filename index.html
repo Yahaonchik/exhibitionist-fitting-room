@@ -50,7 +50,7 @@
         document.body.appendChild(renderer.domElement);
 
         // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambientLight);
 
         const pointLight = new THREE.PointLight(0xf8c8a8, 3);
@@ -60,7 +60,7 @@
         // Создаем материал
         const material = new THREE.MeshStandardMaterial({
             color: 0x555555,
-            metalness: 0.1,
+            metalness: 0.4,
             roughness: 0
         });
 
