@@ -28,19 +28,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <!-- Effect Composer and shaders -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-    <!-- Добавим LuminosityHighPassShader -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
     
     <script>
+        // Создаем сцену, камеру и рендерер
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         
@@ -57,11 +50,11 @@
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
         
-        // Добавим мягкое освещение, чтобы избежать сильного света на модели
-        const ambientLight = new THREE.AmbientLight(0x404040, 1.0);  // Мягкий белый свет
+        // Освещение
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);  // Мягкий белый свет
         scene.add(ambientLight);
         
-        const pointLight = new THREE.PointLight(0xffffff, 1.5);  // Меньше яркости, чтобы избежать пересвечивания
+        const pointLight = new THREE.PointLight(0xffffff, 1.0);  // Менее яркое точечное освещение
         pointLight.position.set(-3, 5, 1);
         scene.add(pointLight);
         
@@ -117,22 +110,13 @@
             scene.add(model3);
         });
         
-        // Пост-обработка с EffectComposer
-        const composer = new THREE.EffectComposer(renderer);
-        composer.addPass(new THREE.RenderPass(scene, camera));
-        
-        const bloomPass = new THREE.UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight), 0.8, 0.2, 0.7 // Уменьшаем яркость bloom-эффекта
-        );
-        composer.addPass(bloomPass);
-        
         function animate() {
             requestAnimationFrame(animate);
             if (mixer1) mixer1.update(0.016);
             if (mixer2) mixer2.update(0.016);
             if (mixer3) mixer3.update(0.016);
             controls.update();
-            composer.render();  // Используем composer для рендеринга сцены
+            renderer.render(scene, camera);
         }
         animate();
     </script>
