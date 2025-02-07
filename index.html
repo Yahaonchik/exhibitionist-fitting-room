@@ -100,7 +100,7 @@
                 z: camera.position.z
             };
 
-            new Tween(coords)
+            const tween = new Tween(coords)
                 .to({ x: targetPosition.x, y: targetPosition.y, z: targetPosition.z }, duration)
                 .easing(Easing.Quadratic.InOut)
                 .onUpdate(() => {
@@ -108,6 +108,8 @@
                     camera.lookAt(0, 0, 0);
                 })
                 .start();
+
+            return tween;
         }
 
         // Обработчик прокрутки колесика
@@ -124,7 +126,7 @@
         });
 
         // Анимация и рендеринг
-        function animate() {
+        function animate(time) {
             requestAnimationFrame(animate);
             const delta = 0.014;
             if (mixer) mixer.update(delta);
@@ -136,4 +138,5 @@
     </script>
 </body>
 </html>
+
 
