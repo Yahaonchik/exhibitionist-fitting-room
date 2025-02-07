@@ -1,97 +1,202 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js GLB Model</title>
-    <style>
-        /* ... (стили остаются без изменений) */
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Three.js GLB Model</title>
+
+    <style>
+
+        body {
+
+            margin: 0;
+
+            overflow: hidden;
+
+            background: url('hauhi.jpg') no-repeat center center fixed;
+
+            background-size: cover;
+
+        }
+
+        canvas {
+
+            display: block;
+
+        }
+
+        .overlay-text {
+
+            position: absolute;
+
+            top: 50px;
+
+            width: 100%;
+
+            text-align: center;
+
+            font-size: 48px;
+
+            font-weight: bold;
+
+            color: black;
+
+            font-family: Arial, sans-serif;
+
+        }
+
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
 </head>
+
 <body>
-    <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
 
-    <script>
-        // ... (сцена, камера, рендерер, освещение, controls - без изменений)
+    <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
 
-        let mixer1, mixer2, mixer3;
-        let model1, model2, model3;
+    
 
-        function scaleModel(model, scaleFactor) {
-            model.scale.set(scaleFactor, scaleFactor, scaleFactor);
-        }
+    <script>
 
-        const loader = new THREE.GLTFLoader();
+        // Создаем сцену, камеру и рендерер
 
-        // Функция для создания и присвоения материала (ОСТАВЛЯЕМ БЕЗ ИЗМЕНЕНИЙ)
-        function applyMaterial(model) {
-            const material = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                roughness: 0.0,
-                metalness: 1.0,
-            });
+        const scene = new THREE.Scene();
 
-            model.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = material;
-                }
-            });
-        }
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-        // Загрузка первой модели (ИСПРАВЛЕННЫЙ БЛОК)
-        loader.load('./models/untitled.glb', function(glb) {
-            model1 = glb.scene;
-            mixer1 = new THREE.AnimationMixer(model1);
-            glb.animations.forEach((clip) => {
-                let action = mixer1.clipAction(clip);
-                action.play();
-                action.timeScale = 0.3;
-            });
-            model1.position.set(0.2, 0, 0);
-            scaleModel(model1, 2.3);
+        
 
-            // ЗАДЕРЖКА ПРИМЕНЕНИЯ МАТЕРИАЛА (САМОЕ ГЛАВНОЕ ИЗМЕНЕНИЕ)
-            setTimeout(() => { 
-                applyMaterial(model1);
-            }, 0); // Задержка в 0 миллисекунд, но ставит выполнение в очередь
+        camera.position.set(0, 5, 0);
 
-            scene.add(model1);
-        });
+        camera.lookAt(0, 0, 0);
 
-        // Загрузка второй модели (АНАЛОГИЧНО ПЕРВОЙ)
-        loader.load('./models/untitled2.glb', function(glb) {
-            model2 = glb.scene;
-            mixer2 = new THREE.AnimationMixer(model2);
-            glb.animations.forEach((clip) => { /* ... */ });
-            model2.position.set(-3, 0, 0);
-            scaleModel(model2, 1);
+        
 
-            setTimeout(() => {
-                applyMaterial(model2);
-            }, 0);
+        const renderer = new THREE.WebGLRenderer({
 
-            scene.add(model2);
-        });
+            alpha: true, // Прозрачный фон
+            antialias: true, // Сглаживание
+            powerPreference: "high-performance", // Высокопроизводительный режим
 
-        // Загрузка третьей модели (АНАЛОГИЧНО ПЕРВОЙ)
-        loader.load('./models/untitled3.glb', function(glb) {
-            model3 = glb.scene;
-            mixer3 = new THREE.AnimationMixer(model3);
-            glb.animations.forEach((clip) => { /* ... */ });
-            model3.position.set(3, 0, 0);
-            scaleModel(model3, 1);
+        });
 
-            setTimeout(() => {
-                applyMaterial(model3);
-            }, 0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
 
-            scene.add(model3);
-        });
+        document.body.appendChild(renderer.domElement);
+   
+        renderer.setSize(window.innerWidth, window.innerHeight);
 
-        // ... (animate() - без изменений)
-    </script>
+        document.body.appendChild(renderer.domElement);
+
+        
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        controls.enableDamping = true;
+        controls.dampingFactor = 0;
+        controls.rotateSpeed = 0.5;
+        controls.enableZoom = false
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xddfcad, 10);
+
+        pointLight.position.set(2, 0, 2);
+
+        scene.add(pointLight);
+        
+        let mixer1, mixer2, mixer3;
+        let model1, model2, model3;
+        
+        function scaleModel(model, scaleFactor) {
+            model.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
+        }
+
+        
+        const loader = new THREE.GLTFLoader();
+
+        // Загрузка первой модели
+        loader.load('./models/untitled.glb', function(glb) {
+            model1 = glb.scene;
+            mixer1 = new THREE.AnimationMixer(model1);
+            glb.animations.forEach((clip) => {
+                let action = mixer1.clipAction(clip);
+                action.play();
+                action.timeScale = 0.3;
+
+            });
+
+            model1.position.set(0.2, 0, 0);
+            scaleModel(model1, 2.3);
+            scene.add(model1);
+        });
+
+        
+
+        const material = new THREE.MeshStandardMaterial({
+            color: 0xffffff, // Простой белый цвет
+            roughness: 0.05,  // Настройка roughness без карты
+            metalness: 0.05,  // Настройка metalness без карты
+
+        });
+
+        // Загрузка второй модели
+
+        loader.load('./models/untitled2.glb', function(glb) {
+            model2 = glb.scene;
+            mixer2 = new THREE.AnimationMixer(model2);
+            glb.animations.forEach((clip) => {
+                let action = mixer2.clipAction(clip);
+                action.timeScale = 0.3;
+                const duration = clip.duration;
+                const startTime = 0.25 * duration;
+                action.reset();
+                action.time = startTime;
+                action.play();
+            });
+            model2.position.set(-3, 0, 0);
+            scaleModel(model2, 1);
+            scene.add(model2);
+        });
+
+       
+        // Загрузка третьей модели
+        loader.load('./models/untitled3.glb', function(glb) {
+            model3 = glb.scene;
+            mixer3 = new THREE.AnimationMixer(model3);
+            glb.animations.forEach((clip) => {
+                let action = mixer3.clipAction(clip);
+                action.play();
+                action.timeScale = 0.3;
+            });
+            model3.position.set(3, 0, 0);
+            scaleModel(model3, 1);
+            scene.add(model3);
+        });
+
+  
+        function animate() {
+            requestAnimationFrame(animate);
+            if (mixer1) mixer1.update(0.016);
+            if (mixer2) mixer2.update(0.016);
+            if (mixer3) mixer3.update(0.016);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
 </body>
-</html>
+</html> 
