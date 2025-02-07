@@ -43,7 +43,6 @@
         const renderer = new THREE.WebGLRenderer({
             alpha: true,
             antialias: true, // Включаем антиалиасинг для сглаживания
-            precision: "highp" // Устанавливаем более высокую точность вычислений
         });
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
