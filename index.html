@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js GLB Model</title>
+    <title>Three.js GLB Model with Tween.js</title>
     <style>
         body {
             margin: 0;
@@ -25,18 +25,18 @@
             font-family: Arial, sans-serif;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-</head>
-<body>
-    <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
+    <script type="module">
+        // Импорт Three.js и GLTFLoader
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
 
-    <script>
+        // Импорт Tween.js
+        import { Tween, Easing } from 'https://unpkg.com/@tweenjs/tween.js@23.1.3/dist/tween.esm.js';
+
         // Создаем сцену, камеру и рендерер
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        camera.position.set(0, 5, 0);
+        camera.position.set(0, 5, 5);
         camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -45,38 +45,95 @@
         document.body.appendChild(renderer.domElement);
 
         // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
         scene.add(ambientLight);
 
         const pointLight = new THREE.PointLight(0xf8c8a8, 5);
-        pointLight.position.set(-3, 5, 10);
+        pointLight.position.set(-3, 5, 7);
         scene.add(pointLight);
 
-        // Загрузка модели
+        // Текущая модель и анимация
+        let currentModel = null;
         let mixer;
-        const loader = new THREE.GLTFLoader();
+        let currentTween = null;
 
-        loader.load('/untitled2.glb', function (glb) {
-            const model = glb.scene;
-            mixer = new THREE.AnimationMixer(model);
-            glb.animations.forEach((clip) => {
-                const action = mixer.clipAction(clip);
-                action.play();
+        // Функция для загрузки модели
+        function loadModel(modelPath, isNextModel) {
+            const loader = new GLTFLoader();
+            loader.load(modelPath, (glb) => {
+                const model = glb.scene;
+                mixer = new THREE.AnimationMixer(model);
+
+                glb.animations.forEach((clip) => {
+                    const action = mixer.clipAction(clip);
+                    action.play();
+                });
+
+                // Начальная позиция новой модели
+                model.position.set(0, isNextModel ? -5 : 5, 0);
+                model.scale.setScalar(1.2);
+                scene.add(model);
+
+                // Анимация перемещения текущей модели вверх
+                if (currentModel) {
+                    const startPos = { y: currentModel.position.y };
+                    const endPos = { y: 10 };
+
+                    currentTween = new Tween(startPos)
+                        .to(endPos, 1000)
+                        .easing(Easing.Quadratic.Out)
+                        .onUpdate(() => {
+                            currentModel.position.y = startPos.y;
+                        })
+                        .onComplete(() => {
+                            scene.remove(currentModel);
+                        })
+                        .start();
+                }
+
+                // Анимация перемещения новой модели на место
+                const newModelStartPos = { y: model.position.y };
+                const newModelEndPos = { y: 0 };
+
+                new Tween(newModelStartPos)
+                    .to(newModelEndPos, 1000)
+                    .easing(Easing.Quadratic.Out)
+                    .onUpdate(() => {
+                        model.position.y = newModelStartPos.y;
+                    })
+                    .start();
+
+                // Обновляем текущую модель
+                currentModel = model;
             });
-            model.position.set(0, 0, 0);
-            model.scale.setScalar(1.2);
-            scene.add(model);
+        }
+
+        // Загружаем начальную модель
+        loadModel('/untitled2.glb', false);
+
+        // Обработчик прокрутки колесика
+        window.addEventListener('wheel', (event) => {
+            if (event.deltaY > 0) {
+                // Прокрутка вниз, загружаем следующую модель
+                loadModel('/untitled.glb', true);
+            } else {
+                // Прокрутка вверх, возвращаемся к предыдущей модели
+                loadModel('/untitled2.glb', false);
+            }
         });
 
         // Анимация и рендеринг
-        function animate() {
+        function animate(time) {
             requestAnimationFrame(animate);
-            const delta = 0.016;
+            Tween.update(time); // Обновляем анимации Tween.js
+            const delta = 0.014;
             if (mixer) mixer.update(delta);
             renderer.render(scene, camera);
         }
-
         animate();
     </script>
+</head>
+<body>
+    <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
 </body>
 </html>
