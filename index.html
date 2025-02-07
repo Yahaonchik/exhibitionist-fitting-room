@@ -73,10 +73,13 @@
                 action.play();
             });
 
-            // Применяем материал ко всем мешам модели
+            // Применяем материал ко всем мешам модели, но только если у них нет других материалов
             model.traverse((child) => {
                 if (child.isMesh) {
-                    child.material = material;
+                    // Применяем материал только если у меша нет материала
+                    if (!child.material) {
+                        child.material = material;
+                    }
                 }
             });
 
