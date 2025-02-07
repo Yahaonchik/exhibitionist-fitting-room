@@ -46,8 +46,6 @@
             precision: "highp" // Устанавливаем более высокую точность вычислений
         });
         
-        renderer.outputEncoding = THREE.sRGBEncoding;
-        
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0;
