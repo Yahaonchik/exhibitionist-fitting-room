@@ -1,116 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js GLB Model</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: url('hauhi.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-        canvas {
-            display: block;
-        }
-        .overlay-text {
-            position: absolute;
-            top: 50px;
-            width: 100%;
-            text-align: center;
-            font-size: 48px;
-            font-weight: bold;
-            color: black;
-            font-family: Arial, sans-serif;
-        }
-    </style>
-    <!-- Подключаем библиотеки Three.js и TWEEN.js -->
+    <title>3D анимация с TWEEN.js</title>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tween.js@18.6.4/dist/tween.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://unpkg.com/tween.js@18.6.4/dist/tween.min.js"></script> <!-- Обновленный источник -->
 </head>
 <body>
-    <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
-
     <script>
-        // Проверка, если TWEEN загружен
+        // Проверим, загружена ли TWEEN.js
         if (typeof TWEEN === 'undefined') {
             console.error("TWEEN.js не загружен.");
         } else {
             console.log("TWEEN.js загружен успешно.");
         }
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 5); 
-        camera.lookAt(0, 0, 0); 
-
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        // Настройка сцены
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.outputEncoding = THREE.sRGBEncoding;
         document.body.appendChild(renderer.domElement);
 
-        // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-        scene.add(ambientLight);
+        // Создаем объект
+        var geometry = new THREE.BoxGeometry();
+        var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        var cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
 
-        const pointLight = new THREE.PointLight(0xf8c8a8, 5);
-        pointLight.position.set(-3, 5, 7);
-        scene.add(pointLight);
+        // Устанавливаем позицию камеры
+        camera.position.z = 5;
 
-        let currentModel = null;
-        let mixer;
-
-        function loadModel(modelPath) {
-            const loader = new THREE.GLTFLoader();
-            loader.load(modelPath, function (glb) {
-                if (currentModel) {
-                    new TWEEN.Tween(currentModel.position)
-                        .to({ y: 5 }, 1000) 
-                        .onComplete(function() {
-                            scene.remove(currentModel); 
-                        })
-                        .start();
-                }
-
-                const model = glb.scene;
-                mixer = new THREE.AnimationMixer(model);
-                glb.animations.forEach((clip) => {
-                    const action = mixer.clipAction(clip);
-                    action.play();
-                });
-
-                model.position.set(0, -5, 0);
-                model.scale.setScalar(1.2);
-                scene.add(model);
-
-                currentModel = model;
-
-                new TWEEN.Tween(model.position)
-                    .to({ y: 0 }, 1000) 
-                    .start();
-            });
-        }
-
-        loadModel('/untitled2.glb');
-
-        window.addEventListener('wheel', function(event) {
-            if (event.deltaY > 0) {
-                loadModel('/untitled.glb');
-            } else {
-                loadModel('/untitled2.glb');
-            }
-        });
-
+        // Анимация с использованием TWEEN.js
         function animate() {
             requestAnimationFrame(animate);
-            const delta = 0.014;
-            if (mixer) mixer.update(delta);
-            TWEEN.update();  // Обновляем TWEEN анимации
+
+            // Проверяем, загружен ли TWEEN
+            if (typeof TWEEN !== 'undefined') {
+                TWEEN.update();  // Обновляем TWEEN анимации, только если библиотека доступна
+            }
+
+            // Добавляем анимацию с TWEEN (например, анимация вращения)
+            var tween = new TWEEN.Tween(cube.rotation)
+                .to({ x: cube.rotation.x + Math.PI }, 2000)  // Вращаем на 180 градусов
+                .yoyo(true)
+                .repeat(Infinity)
+                .start();
+
             renderer.render(scene, camera);
         }
 
+        // Запуск анимации
         animate();
     </script>
 </body>
