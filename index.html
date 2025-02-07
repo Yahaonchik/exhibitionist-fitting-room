@@ -42,6 +42,10 @@
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.gammaFactor = 2.2;
+        renderer.gammaOutput = true;
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x000000, 0);  // Установка прозрачного фона
         document.body.appendChild(renderer.domElement);
 
         // Освещение
