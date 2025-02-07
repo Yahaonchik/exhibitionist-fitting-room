@@ -37,7 +37,7 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         
-        camera.position.set(0, 5, 0);
+        camera.position.set(0, 5, 10); // Отодвинул камеру для лучшего обзора
         camera.lookAt(0, 0, 0);
         
         const renderer = new THREE.WebGLRenderer({
@@ -46,23 +46,30 @@
             powerPreference: "high-performance", // Высокопроизводительный режим
         });
         renderer.setPixelRatio(window.devicePixelRatio || 1); // Использовать native DPI экрана
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-            
+        renderer.outputEncoding = THREE.sRGBEncoding; // Правильная цветовая гамма
+        renderer.toneMapping = THREE.ACESFilmicToneMapping; // Реалистичный тонмаппинг
+        renderer.toneMappingExposure = 1.5; // Увеличиваем экспозицию для яркости
+        renderer.physicallyCorrectLights = true; // Физически корректное освещение
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0;
+        controls.dampingFactor = 0.1; // Увеличил dampingFactor для плавности
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
         
-        const ambientLight = new THREE.AmbientLight(0xffffff, 3);
+        // Освещение
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2); // Увеличил интенсивность
         scene.add(ambientLight);
-        
-        const pointLight = new THREE.PointLight(0xddfcad, 10);
-        pointLight.position.set(-3, 0, -5);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3); // Увеличил интенсивность
+        directionalLight.position.set(5, 5, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 20); // Увеличил интенсивность
+        pointLight.position.set(0, 5, 5);
         scene.add(pointLight);
         
         let mixer1, mixer2, mixer3;
