@@ -57,10 +57,11 @@
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
         
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+        // Добавим мягкое освещение, чтобы избежать сильного света на модели
+        const ambientLight = new THREE.AmbientLight(0x404040, 1.0);  // Мягкий белый свет
         scene.add(ambientLight);
         
-        const pointLight = new THREE.PointLight(0xffffff, 2);
+        const pointLight = new THREE.PointLight(0xffffff, 1.5);  // Меньше яркости, чтобы избежать пересвечивания
         pointLight.position.set(-3, 5, 1);
         scene.add(pointLight);
         
@@ -121,7 +122,7 @@
         composer.addPass(new THREE.RenderPass(scene, camera));
         
         const bloomPass = new THREE.UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85
+            new THREE.Vector2(window.innerWidth, window.innerHeight), 0.8, 0.2, 0.7 // Уменьшаем яркость bloom-эффекта
         );
         composer.addPass(bloomPass);
         
@@ -137,5 +138,3 @@
     </script>
 </body>
 </html>
-
-
