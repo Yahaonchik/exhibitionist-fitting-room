@@ -42,7 +42,7 @@
         
         const renderer = new THREE.WebGLRenderer({
             alpha: true, // Прозрачный фон
-            antialias: true, // Сглаживание
+            antialias: false, // Сглаживание
             powerPreference: "high-performance", // Высокопроизводительный режим
         });
         renderer.setPixelRatio(window.devicePixelRatio || 1); // Использовать native DPI экрана
