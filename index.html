@@ -61,9 +61,12 @@
         function loadModel(modelPath) {
             const loader = new THREE.GLTFLoader();
             loader.load(modelPath, function (glb) {
-                // Очистка предыдущей модели
+                // Очистка предыдущей модели с анимацией
                 if (currentModel) {
-                    scene.remove(currentModel);
+                    // Добавляем анимацию для старой модели
+                    new TWEEN.Tween(currentModel.position)
+                        .to({ y: 5 }, 1000) // Двигаем старую модель вверх
+                        .start();
                 }
 
                 // Загружаем новую модель
@@ -75,16 +78,17 @@
                     action.play();
                 });
 
-                model.position.set(0, 0, 0);
+                model.position.set(0, -5, 0); // Начальная позиция новой модели снизу
                 model.scale.setScalar(1.2);
                 scene.add(model);
 
                 // Обновляем текущую модель
                 currentModel = model;
 
-                // Сохраняем правильное положение камеры
-                camera.position.set(0, 5, 0);
-                camera.lookAt(0, 0, 0);
+                // Добавляем анимацию для новой модели
+                new TWEEN.Tween(model.position)
+                    .to({ y: 0 }, 1000) // Двигаем новую модель в центр
+                    .start();
             });
         }
 
@@ -107,6 +111,7 @@
             requestAnimationFrame(animate);
             const delta = 0.014;
             if (mixer) mixer.update(delta);
+            TWEEN.update(); // Обновляем все анимации TWEEN
             renderer.render(scene, camera);
         }
 
@@ -114,4 +119,3 @@
     </script>
 </body>
 </html>
-
