@@ -71,7 +71,7 @@
         // Анимация и рендеринг
         function animate() {
             requestAnimationFrame(animate);
-            const delta = 0.016;
+            const delta = 0.05;
             if (mixer) mixer.update(delta);
             renderer.render(scene, camera);
         }
