@@ -39,9 +39,13 @@
         camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
 
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.outputEncoding = THREE.sRGBEncoding; // Установка правильного кодирования
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.gammaFactor = 2.2;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Мягкие тени
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setClearColor(0x000000, 0);  // Установка прозрачного фона
         document.body.appendChild(renderer.domElement);
