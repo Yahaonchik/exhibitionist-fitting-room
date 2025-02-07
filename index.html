@@ -27,7 +27,7 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.min.js"></script> <!-- Тег для TWEEN.js -->
+    <script src="https://unpkg.com/@tweenjs/tween.js@23.1.3/dist/tween.umd.js"></script> <!-- Подключаем корректный скрипт -->
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
@@ -99,7 +99,7 @@
                 z: camera.position.z
             };
 
-            const tween = new TWEEN.Tween(coords) // Используем глобальный TWEEN
+            const tween = new TWEEN.Tween(coords) // Теперь используем правильный глобальный TWEEN
                 .to({ x: targetPosition.x, y: targetPosition.y, z: targetPosition.z }, duration)
                 .easing(TWEEN.Easing.Quadratic.InOut)
                 .onUpdate(() => {
@@ -137,5 +137,4 @@
     </script>
 </body>
 </html>
-
 
