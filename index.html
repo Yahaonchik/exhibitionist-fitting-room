@@ -27,6 +27,7 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/r18/tween.min.js"></script>
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
@@ -41,58 +42,73 @@
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.outputEncoding = THREE.sRGBEncoding; // Установка правильного кодирования
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setClearColor(0x000000, 0);  // Установка прозрачного фона
+        renderer.outputEncoding = THREE.sRGBEncoding;
         document.body.appendChild(renderer.domElement);
 
         // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
         scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0xf8c8a8, 2);
-        pointLight.position.set(-3, 9, 5);
+        const pointLight = new THREE.PointLight(0xf8c8a8, 5);
+        pointLight.position.set(-3, 5, 7);
         scene.add(pointLight);
-
-        // Создаем материал
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x555555,
-            metalness: 0.3,
-            roughness: 0
-        });
 
         // Загрузка модели
         let mixer;
+        let currentModel;
         const loader = new THREE.GLTFLoader();
-
-        loader.load('/untitled2.glb', function (glb) {
-            const model = glb.scene;
-            mixer = new THREE.AnimationMixer(model);
-            glb.animations.forEach((clip) => {
-                const action = mixer.clipAction(clip);
-                action.play();
-            });
-
-            // Применяем материал ко всем мешам модели, но только если у них нет других материалов
-            model.traverse((child) => {
-                if (child.isMesh) {
-                    // Применяем материал только если у меша нет материала
-                    if (!child.material) {
-                        child.material = material;
-                    }
+        
+        function loadModel(path, positionY) {
+            loader.load(path, function (glb) {
+                const model = glb.scene;
+                mixer = new THREE.AnimationMixer(model);
+                glb.animations.forEach((clip) => {
+                    const action = mixer.clipAction(clip);
+                    action.play();
+                });
+                model.position.set(0, positionY, 0);  // Устанавливаем начальную позицию модели
+                model.scale.setScalar(1.2);  // Масштабируем модель
+                scene.add(model);
+                
+                // Если уже есть модель на сцене, анимация её перемещения вверх
+                if (currentModel) {
+                    new TWEEN.Tween(currentModel.position)
+                        .to({ y: 10 }, 1000)  // Перемещаем текущую модель вверх
+                        .easing(TWEEN.Easing.Quadratic.Out)
+                        .start();
                 }
-            });
 
-            model.position.set(0, 0, 0);
-            model.scale.setScalar(1.2);
-            scene.add(model);
+                // Устанавливаем новую модель как текущую
+                currentModel = model;
+            });
+        }
+
+        // Первоначальная загрузка первой модели
+        loadModel('untitled.glb', 0);  // Загрузка первой модели
+
+        // Обработчик события прокрутки
+        let scrollDirection = 0;
+        window.addEventListener('wheel', (event) => {
+            if (event.deltaY > 0) {
+                // Прокрутка вниз
+                scrollDirection = 1;
+            } else {
+                // Прокрутка вверх
+                scrollDirection = -1;
+            }
+            // Загрузка следующей модели при прокрутке
+            if (scrollDirection !== 0) {
+                // Прокручиваем вниз — загружаем 'untitled2.glb', прокручиваем вверх — загружаем 'untitled.glb'
+                loadModel(scrollDirection === 1 ? 'untitled2.glb' : 'untitled.glb', scrollDirection === 1 ? -10 : 10);
+            }
         });
 
         // Анимация и рендеринг
         function animate() {
             requestAnimationFrame(animate);
-            const delta = 0.014;
+            const delta = 0.016;
             if (mixer) mixer.update(delta);
+            TWEEN.update();  // Обновляем анимации
             renderer.render(scene, camera);
         }
 
