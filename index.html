@@ -28,6 +28,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 </head>
 <body>
     <div class="overlay-text">ПРОДАЮ ПЛАКАТЫ</div>
@@ -40,32 +42,39 @@
         camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
         
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ 
+            alpha: true, 
+            antialias: true, 
+            precision: "highp" // Устанавливаем более высокую точность вычислений
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
-        
+
+        // Настройки для улучшения качества рендеринга
+        renderer.outputEncoding = THREE.sRGBEncoding;  // Правильная гамма для текстур и освещения
+
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0;
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
-        
+
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
         scene.add(ambientLight);
-        
+
         const pointLight = new THREE.PointLight(0xffffff, 2);
         pointLight.position.set(-3, 5, 1);
         scene.add(pointLight);
         
         let mixer1, mixer2, mixer3;
         let model1, model2, model3;
-        
+
         function scaleModel(model, scaleFactor) {
             model.scale.set(scaleFactor, scaleFactor, scaleFactor);
         }
-        
+
         const loader = new THREE.GLTFLoader();
-        
+
         loader.load('/untitled.glb', function(glb) {
             model1 = glb.scene;
             mixer1 = new THREE.AnimationMixer(model1);
@@ -78,7 +87,7 @@
             scaleModel(model1, 0.35);
             scene.add(model1);
         });
-        
+
         loader.load('/untitled2.glb', function(glb) {
             model2 = glb.scene;
             mixer2 = new THREE.AnimationMixer(model2);
@@ -95,7 +104,7 @@
             scaleModel(model2, 1.2);
             scene.add(model2);
         });
-        
+
         loader.load('/untitled3.glb', function(glb) {
             model3 = glb.scene;
             mixer3 = new THREE.AnimationMixer(model3);
@@ -108,14 +117,23 @@
             scaleModel(model3, 1);
             scene.add(model3);
         });
-        
+
+        // Добавляем эффект Bloom для улучшения визуальных эффектов
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(new THREE.RenderPass(scene, camera));
+
+        const bloomPass = new THREE.UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85
+        );
+        composer.addPass(bloomPass);
+
         function animate() {
             requestAnimationFrame(animate);
             if (mixer1) mixer1.update(0.016);
             if (mixer2) mixer2.update(0.016);
             if (mixer3) mixer3.update(0.016);
             controls.update();
-            renderer.render(scene, camera);
+            composer.render();  // Используем composer для рендеринга сцены
         }
         animate();
     </script>
