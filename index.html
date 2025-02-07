@@ -1,58 +1,77 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D анимация с TWEEN.js</title>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/Tween.min.js"></script> <!-- Обновленный источник -->
+    <title>3D Animation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <script>
-        // Проверим, загружена ли TWEEN.js
-        if (typeof TWEEN === 'undefined') {
-            console.error("TWEEN.js не загружен.");
-        } else {
-            console.log("TWEEN.js загружен успешно.");
-        }
 
-        // Настройка сцены
-        var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        var renderer = new THREE.WebGLRenderer();
+<!-- Ваше 3D-сцена с canvas -->
+<canvas id="myCanvas"></canvas>
+
+<script type="module">
+    import {Tween, Easing} from 'https://unpkg.com/@tweenjs/tween.js@23.1.3/dist/tween.esm.js';
+    import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+
+    let scene, camera, renderer, cube, clock;
+    let controls;
+
+    // Инициализация сцены
+    function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('myCanvas') });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Создаем объект
-        var geometry = new THREE.BoxGeometry();
-        var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        var cube = new THREE.Mesh(geometry, material);
+        // Добавляем куб
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
 
-        // Устанавливаем позицию камеры
         camera.position.z = 5;
 
-        // Анимация с использованием TWEEN.js
-        function animate() {
-            requestAnimationFrame(animate);
+        // Создаем часы для анимации
+        clock = new THREE.Clock();
 
-            // Проверяем, загружен ли TWEEN
-            if (typeof TWEEN !== 'undefined') {
-                TWEEN.update();  // Обновляем TWEEN анимации, только если библиотека доступна
-            }
+        // Настроим анимацию с Tween.js
+        const position = { x: 0, y: 0, z: 5 };
+        const tween = new Tween(position)
+            .to({ x: 1, y: 1, z: 1 }, 2000)
+            .easing(Easing.Quadratic.InOut)
+            .onUpdate(() => {
+                cube.position.set(position.x, position.y, position.z);
+            })
+            .start();
 
-            // Добавляем анимацию с TWEEN (например, анимация вращения)
-            var tween = new TWEEN.Tween(cube.rotation)
-                .to({ x: cube.rotation.x + Math.PI }, 2000)  // Вращаем на 180 градусов
-                .yoyo(true)
-                .repeat(Infinity)
-                .start();
-
-            renderer.render(scene, camera);
-        }
-
-        // Запуск анимации
         animate();
-    </script>
+    }
+
+    // Анимация
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Обновляем тайминг для tween.js
+        const delta = clock.getDelta();
+        Tween.update();
+
+        // Обновляем сцену
+        renderer.render(scene, camera);
+    }
+
+    init();
+</script>
+
 </body>
 </html>
