@@ -37,7 +37,7 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         
-        camera.position.set(0, 5, 10); // Отодвинул камеру для лучшего обзора
+        camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
         
         const renderer = new THREE.WebGLRenderer({
@@ -46,28 +46,23 @@
             powerPreference: "high-performance", // Высокопроизводительный режим
         });
         renderer.setPixelRatio(window.devicePixelRatio || 1); // Использовать native DPI экрана
-        renderer.outputEncoding = THREE.sRGBEncoding; // Правильная цветовая гамма
-        renderer.physicallyCorrectLights = true; // Физически корректное освещение
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+            
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.1; // Увеличил dampingFactor для плавности
+        controls.dampingFactor = 0;
         controls.rotateSpeed = 0.5;
         controls.enableZoom = false;
         
-        // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Мягкий окружающий свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2);
         scene.add(ambientLight);
         
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 2); // Направленный свет
-        directionalLight.position.set(5, 5, 5);
-        directionalLight.castShadow = true; // Включил тени
-        scene.add(directionalLight);
-        
-        const pointLight = new THREE.PointLight(0xffffff, 10); // Точечный свет
-        pointLight.position.set(0, 5, 5);
+        const pointLight = new THREE.PointLight(0xddfcad, 10);
+        pointLight.position.set(0, 0, 0);
         scene.add(pointLight);
         
         let mixer1, mixer2, mixer3;
@@ -91,6 +86,12 @@
             model1.position.set(0.2, 0, 0);
             scaleModel(model1, 2.3);
             scene.add(model1);
+        });
+        
+        const material = new THREE.MeshStandardMaterial({
+            color: 0xffffff, // Простой белый цвет
+            roughness: 0.5,  // Настройка roughness без карты
+            metalness: 0.3,  // Настройка metalness без карты
         });
         
         // Загрузка второй модели
