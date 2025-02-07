@@ -40,10 +40,9 @@
         camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
         
-        const renderer = new THREE.WebGLRenderer({
-            alpha: true,
-            antialias: true, // Включаем антиалиасинг для сглаживания
-        });
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
@@ -76,7 +75,7 @@
                 action.timeScale = 0.3;
             });
             model1.position.set(0.2, 0, 0);
-            scaleModel(model1, 0.4);
+            scaleModel(model1, 0.35);
             scene.add(model1);
         });
         
@@ -110,32 +109,6 @@
             scene.add(model3);
         });
         
-        function animate() {
-            requestAnimationFrame(animate);
-            if (mixer1) mixer1.update(0.016);
-            if (mixer2) mixer2.update(0.016);
-            if (mixer3) mixer3.update(0.016);
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        animate();
-    </script>
-</body>
-</html>
-        loader.load('./models/untitled3.glb', function(glb) {
-            model3 = glb.scene;
-            mixer3 = new THREE.AnimationMixer(model3);
-            glb.animations.forEach((clip) => {
-                let action = mixer3.clipAction(clip);
-                action.play();
-                action.timeScale = 0.3;
-            });
-            applyMaterialEnhancements(model3);
-            model3.position.set(3, 0, 0);
-            scaleModel(model3, 1);
-            scene.add(model3);
-        });
-
         function animate() {
             requestAnimationFrame(animate);
             if (mixer1) mixer1.update(0.016);
