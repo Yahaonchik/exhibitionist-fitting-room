@@ -40,9 +40,18 @@
         camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
         
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        const renderer = new THREE.WebGLRenderer({
+            alpha: true,
+            antialias: true, // Включаем антиалиасинг для сглаживания
+            precision: "highp" // Устанавливаем более высокую точность вычислений
+        });
+        
+        renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(new THREE.RenderPass(scene, camera));
+        
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
