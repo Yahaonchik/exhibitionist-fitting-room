@@ -16,35 +16,34 @@
 </head>
 <body>
 
-<!-- Ваше 3D-сцена с canvas -->
 <canvas id="myCanvas"></canvas>
 
 <script type="module">
-    import {Tween, Easing} from 'https://unpkg.com/@tweenjs/tween.js@23.1.3/dist/tween.esm.js';
+    import { Tween, Easing } from 'https://unpkg.com/@tweenjs/tween.js@23.1.3/dist/tween.esm.js';
 
-    // Используем другой CDN для Three.js
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js';
+    // Используем правильный импорт для Three.js
+    import { Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial, Mesh, Clock } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
 
     let scene, camera, renderer, cube, clock;
-    
-    // Инициализация сцены
+
     function init() {
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('myCanvas') });
+        // Инициализация сцены
+        scene = new Scene();
+        camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        renderer = new WebGLRenderer({ canvas: document.getElementById('myCanvas') });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
         // Добавляем куб
-        const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        cube = new THREE.Mesh(geometry, material);
+        const geometry = new BoxGeometry();
+        const material = new MeshBasicMaterial({ color: 0x00ff00 });
+        cube = new Mesh(geometry, material);
         scene.add(cube);
 
         camera.position.z = 5;
 
         // Создаем часы для анимации
-        clock = new THREE.Clock();
+        clock = new Clock();
 
         // Настроим анимацию с Tween.js
         const position = { x: 0, y: 0, z: 5 };
@@ -59,7 +58,6 @@
         animate();
     }
 
-    // Анимация
     function animate() {
         requestAnimationFrame(animate);
 
