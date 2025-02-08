@@ -1,0 +1,6 @@
+[build]
+  publish = "build"  # Путь к папке для публикации, если требуется
+
+[[plugins]]
+  package = "@netlify/plugin-image-optimizer"
+  disabled = true  # Отключить плагин, который сжимает изображения
