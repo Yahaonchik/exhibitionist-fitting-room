@@ -1,6 +1,7 @@
 [build]
-  publish = "."  # Путь к папке для публикации, если требуется
+  publish = "."  # Публикация из корня проекта
+  command = "npm run build"  # Если используете команду для сборки проекта (например, npm)
 
 [[plugins]]
   package = "@netlify/plugin-image-optimizer"
-  disabled = true  # Отключить плагин, который сжимает изображения
+  disabled = true  # Отключить плагин для сжатия изображений
