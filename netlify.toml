@@ -1,5 +1,5 @@
 [build]
-  publish = "build"  # Путь к папке для публикации, если требуется
+  publish = "."  # Путь к папке для публикации, если требуется
 
 [[plugins]]
   package = "@netlify/plugin-image-optimizer"
