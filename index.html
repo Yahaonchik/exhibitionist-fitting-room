@@ -42,13 +42,14 @@
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
         // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0);
         scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0xf8c8a8, 3.5);
+        const pointLight = new THREE.PointLight(0xf8c8a8, 2);
         pointLight.position.set(-3, 8, 5);
         scene.add(pointLight);
 
@@ -56,7 +57,7 @@
         let mixer;
         const loader = new THREE.GLTFLoader();
 
-        loader.load('/untitled2.glb', function (glb) {
+        loader.load('untitled2.glb', function (glb) {
             const model = glb.scene;
             mixer = new THREE.AnimationMixer(model);
             glb.animations.forEach((clip) => {
