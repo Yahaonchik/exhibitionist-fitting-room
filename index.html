@@ -36,34 +36,20 @@
         camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
 
-        // New renderer setup
-        const renderer = new THREE.WebGLRenderer({ 
-            alpha: true, 
-            antialias: false,
-            precision: 'mediump'
-        });
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(1);
-        renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.physicallyCorrectLights = false;
+        renderer.setPixelRatio(2.5);
+        renderer.outputEncoding = THREE.LinearEncoding
+        renderer.physicallyCorrectLights = true;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1;
-        renderer.setClearColor(0x000000, 0);
         document.body.appendChild(renderer.domElement);
 
-        // Remove previous lights and add new ones
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Ambient light removed, use new lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
         scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xf8c8a8, 2); // Point light removed, use new lights
+
+        const pointLight = new THREE.PointLight(0xf8c8a8, 80);
         pointLight.position.set(0, 2, 3.5);
         scene.add(pointLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(0, 5, 5);
-        scene.add(directionalLight);
-
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
-        scene.add(hemiLight);
 
         let mixers = [];
         let actions = [];
@@ -71,42 +57,20 @@
 
         const loader = new THREE.GLTFLoader();
 
-        // Modify loadModel function
         function loadModel(path, position) {
             loader.load(path, function (glb) {
                 const model = glb.scene;
-                
-                // Optimize materials
-                model.traverse((object) => {
-                    if (object.isMesh) {
-                        object.material.precision = 'lowp';
-                        object.material.roughness = 0.7;
-                        object.material.metalness = 0.3;
-                        object.material.envMapIntensity = 0.5;
-                        object.castShadow = false;
-                        object.receiveShadow = false;
-                        
-                        // Optimize textures if they exist
-                        if (object.material.map) {
-                            object.material.map.minFilter = THREE.LinearFilter;
-                            object.material.map.magFilter = THREE.LinearFilter;
-                            object.material.map.anisotropy = 1;
-                        }
-                    }
-                });
-
                 const mixer = new THREE.AnimationMixer(model);
-                const action = mixer.clipAction(glb.animations[0]);
-                action.timeScale = 1.5; // Speed up animation
+                const action = mixer.clipAction(glb.animations[0]); // Берём первую анимацию
 
                 actions.push({ mixer, action });
                 mixers.push(mixer);
 
                 model.position.set(position, 0, 0);
-                model.scale.setScalar(1);
+                model.scale.setScalar(1.2);
                 scene.add(model);
 
-                if (actions.length === 3) startAnimationLoop();
+                if (actions.length === 3) startAnimationLoop(); // Запускаем, когда все 3 модели загружены
             });
         }
 
@@ -118,51 +82,33 @@
             playNextAnimation();
         }
 
-        // Modify playNextAnimation function
         function playNextAnimation() {
-            actions.forEach(({ action }) => action.stop());
+            actions.forEach(({ action }) => action.stop()); // Останавливаем все анимации
 
             const { action } = actions[currentActionIndex];
             action.reset().play();
-            action.clampWhenFinished = true;
-            action.loop = THREE.LoopOnce;
-            action.timeScale = 1.5;
+            action.clampWhenFinished = true; // Останавливает анимацию после завершения
+            action.loop = THREE.LoopOnce; // Проигрывает только 1 раз
 
             action.onFinished = function () {
                 action.paused = true;
             };
 
-            currentActionIndex = (currentActionIndex + 1) % actions.length;
+            currentActionIndex = (currentActionIndex + 1) % actions.length; // Меняем анимацию по кругу
 
-            // Reduce animation delay
-            setTimeout(playNextAnimation, action.getClip().duration * 400);
+            setTimeout(playNextAnimation, action.getClip().duration * 700); // Ждём окончания анимации и меняем
         }
 
-        // Modify animate function
-        let lastTime = 0;
-        function animate(currentTime) {
+        function animate() {
             requestAnimationFrame(animate);
-            
-            if (!lastTime) {
-                lastTime = currentTime;
-                return;
-            }
-
-            const delta = Math.min((currentTime - lastTime) / 1000, 0.03);
-            lastTime = currentTime;
-
-            mixers.forEach(mixer => mixer.update(delta));
-            renderer.render(scene, camera);
+            const delta = 0.015;
+            mixers.forEach(mixer => mixer.update(delta)); // Обновляем все смешиватели
+            renderer.render(scene, camera); // Рендерим сцену
         }
 
-        animate(); // Start animation
-
-        // Handle window resizing
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        animate(); // Запускаем анимацию
     </script>
+</body>
+</html>
 </body>
 </html>
