@@ -29,7 +29,6 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
-
     <script>
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -39,7 +38,7 @@
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(2.5);
-        renderer.outputEncoding = THREE.LinearEncoding
+        renderer.outputEncoding = THREE.LinearEncoding;
         renderer.physicallyCorrectLights = true;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         document.body.appendChild(renderer.domElement);
@@ -83,30 +82,29 @@
         }
 
         function playNextAnimation() {
-            actions.forEach(({ action }) => action.stop()); // Останавливаем все анимации
+            actions.forEach(({ action }) => action.stop()); 
 
-            const { action } = actions[currentActionIndex];
+            const { action, mixer } = actions[currentActionIndex];
             action.reset().play();
-            action.clampWhenFinished = true; // Останавливает анимацию после завершения
-            action.loop = THREE.LoopOnce; // Проигрывает только 1 раз
+            action.clampWhenFinished = true; 
+            action.loop = THREE.LoopOnce;
 
-            action.onFinished = function () {
-                action.paused = true;
-            };
-
-            currentActionIndex = (currentActionIndex + 1) % actions.length; // Меняем анимацию по кругу
-
-            setTimeout(playNextAnimation, action.getClip().duration * 700); // Ждём окончания анимации и меняем
+            mixer.addEventListener("finished", () => {
+                if (action === actions[currentActionIndex].action) {
+                    currentActionIndex = (currentActionIndex + 1) % actions.length;
+                    playNextAnimation(); // Запускаем новую только после завершения предыдущей
+                }
+            });
         }
 
         function animate() {
             requestAnimationFrame(animate);
             const delta = 0.015;
-            mixers.forEach(mixer => mixer.update(delta)); // Обновляем все смешиватели
-            renderer.render(scene, camera); // Рендерим сцену
+            mixers.forEach(mixer => mixer.update(delta));
+            renderer.render(scene, camera);
         }
 
-        animate(); // Запускаем анимацию
+        animate();
     </script>
 </body>
 </html>
