@@ -31,67 +31,82 @@
 <body>
 
     <script>
-        // Detect mobile devices
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 5, 0);
         camera.lookAt(0, 0, 0);
 
+        // New renderer setup
         const renderer = new THREE.WebGLRenderer({ 
             alpha: true, 
-            antialias: !isMobile,  // Disable antialiasing on mobile
-            powerPreference: "high-performance"
+            antialias: false,
+            precision: 'mediump'
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        // Lower pixel ratio for mobile devices
-        renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 2) : 2.5);
-        renderer.outputEncoding = THREE.LinearEncoding;
-        renderer.physicallyCorrectLights = true;
-        renderer.toneMapping = THREE.NoToneMapping;
+        renderer.setPixelRatio(1);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.physicallyCorrectLights = false;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1;
+        renderer.setClearColor(0x000000, 0);
         document.body.appendChild(renderer.domElement);
 
-        // Adjust light intensity for better mobile performance
-        const ambientLight = new THREE.AmbientLight(0xffffff, isMobile ? 3 : 5);
+        // Remove previous lights and add new ones
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Ambient light removed, use new lights
         scene.add(ambientLight);
-
-        const pointLight = new THREE.PointLight(0xf8c8a8, isMobile ? 2 : 3);
+        const pointLight = new THREE.PointLight(0xf8c8a8, 2); // Point light removed, use new lights
         pointLight.position.set(0, 2, 3.5);
         scene.add(pointLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(0, 5, 5);
+        scene.add(directionalLight);
+
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
+        scene.add(hemiLight);
 
         let mixers = [];
         let actions = [];
         let currentActionIndex = 0;
-        let lastTime = 0;
 
         const loader = new THREE.GLTFLoader();
 
+        // Modify loadModel function
         function loadModel(path, position) {
             loader.load(path, function (glb) {
                 const model = glb.scene;
                 
-                // Optimize models for mobile
-                if (isMobile) {
-                    model.traverse((object) => {
-                        if (object.isMesh) {
-                            object.material.precision = "lowp"; // Use low precision on mobile
-                            object.frustumCulled = true;
+                // Optimize materials
+                model.traverse((object) => {
+                    if (object.isMesh) {
+                        object.material.precision = 'lowp';
+                        object.material.roughness = 0.7;
+                        object.material.metalness = 0.3;
+                        object.material.envMapIntensity = 0.5;
+                        object.castShadow = false;
+                        object.receiveShadow = false;
+                        
+                        // Optimize textures if they exist
+                        if (object.material.map) {
+                            object.material.map.minFilter = THREE.LinearFilter;
+                            object.material.map.magFilter = THREE.LinearFilter;
+                            object.material.map.anisotropy = 1;
                         }
-                    });
-                }
+                    }
+                });
 
                 const mixer = new THREE.AnimationMixer(model);
-                const action = mixer.clipAction(glb.animations[0]); // Take the first animation
+                const action = mixer.clipAction(glb.animations[0]);
+                action.timeScale = 1.5; // Speed up animation
 
                 actions.push({ mixer, action });
                 mixers.push(mixer);
 
                 model.position.set(position, 0, 0);
-                model.scale.setScalar(isMobile ? 0.8 : 1.2); // Smaller scale on mobile
+                model.scale.setScalar(1);
                 scene.add(model);
 
-                if (actions.length === 3) startAnimationLoop(); // Start when all 3 models are loaded
+                if (actions.length === 3) startAnimationLoop();
             });
         }
 
@@ -103,41 +118,41 @@
             playNextAnimation();
         }
 
+        // Modify playNextAnimation function
         function playNextAnimation() {
-            actions.forEach(({ action }) => action.stop()); // Stop all animations
+            actions.forEach(({ action }) => action.stop());
 
             const { action } = actions[currentActionIndex];
             action.reset().play();
-            action.clampWhenFinished = true; // Stops animation after it finishes
-            action.loop = THREE.LoopOnce; // Play only once
-
-            // Adjust animation timing for mobile
-            action.timeScale = isMobile ? 1.5 : 1; // Speed up animation on mobile
+            action.clampWhenFinished = true;
+            action.loop = THREE.LoopOnce;
+            action.timeScale = 1.5;
 
             action.onFinished = function () {
                 action.paused = true;
             };
 
-            currentActionIndex = (currentActionIndex + 1) % actions.length; // Change animation in a loop
+            currentActionIndex = (currentActionIndex + 1) % actions.length;
 
-            // Adjust delay between animations for mobile
-            setTimeout(playNextAnimation, action.getClip().duration * (isMobile ? 400 : 700)); // Wait for animation to end and switch
+            // Reduce animation delay
+            setTimeout(playNextAnimation, action.getClip().duration * 400);
         }
 
-        let frameCount = 0;
+        // Modify animate function
+        let lastTime = 0;
         function animate(currentTime) {
             requestAnimationFrame(animate);
             
-            // Limit FPS to 30 on mobile devices
-            frameCount++;
-            if (isMobile && frameCount % 2 !== 0) return;
+            if (!lastTime) {
+                lastTime = currentTime;
+                return;
+            }
 
-            if (!lastTime) lastTime = currentTime;
-            const deltaTime = Math.min((currentTime - lastTime) * 0.001, 0.033); // Cap to 30 FPS
+            const delta = Math.min((currentTime - lastTime) / 1000, 0.03);
             lastTime = currentTime;
 
-            mixers.forEach(mixer => mixer.update(deltaTime)); // Update all mixers
-            renderer.render(scene, camera); // Render the scene
+            mixers.forEach(mixer => mixer.update(delta));
+            renderer.render(scene, camera);
         }
 
         animate(); // Start animation
