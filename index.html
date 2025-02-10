@@ -39,7 +39,7 @@
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(2.5);
-        renderer.outputEncoding = THREE.LinearEncoding
+        renderer.outputEncoding = THREE.LinearEncoding;
         renderer.physicallyCorrectLights = true;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         document.body.appendChild(renderer.domElement);
@@ -57,6 +57,7 @@
 
         const loader = new THREE.GLTFLoader();
 
+        // Функция загрузки модели
         function loadModel(path, position) {
             loader.load(path, function (glb) {
                 const model = glb.scene;
@@ -74,14 +75,17 @@
             });
         }
 
+        // Загружаем модели
         loadModel('/untitled.glb', -3);
         loadModel('/untitled2.glb', 0);
         loadModel('/untitled3.glb', 3);
 
+        // Функция для начала анимации
         function startAnimationLoop() {
             playNextAnimation();
         }
 
+        // Функция переключения анимаций
         function playNextAnimation() {
             actions.forEach(({ action }) => action.stop()); // Останавливаем все анимации
 
@@ -99,6 +103,7 @@
             setTimeout(playNextAnimation, action.getClip().duration * 700); // Ждём окончания анимации и меняем
         }
 
+        // Функция анимации сцены
         function animate() {
             requestAnimationFrame(animate);
             const delta = 0.015;
@@ -108,7 +113,5 @@
 
         animate(); // Запускаем анимацию
     </script>
-</body>
-</html>
 </body>
 </html>
