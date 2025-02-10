@@ -25,6 +25,7 @@
             font-family: Arial, sans-serif;
         }
     </style>
+    <!-- Импортируем Three.js и GLTFLoader -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
 </head>
@@ -55,7 +56,7 @@
         let actions = [];
         let currentActionIndex = 0;
 
-        const loader = new THREE.GLTFLoader();
+        const loader = new THREE.GLTFLoader(); // Создаём экземпляр GLTFLoader
 
         // Функция загрузки модели
         function loadModel(path, position) {
@@ -115,3 +116,4 @@
     </script>
 </body>
 </html>
+
